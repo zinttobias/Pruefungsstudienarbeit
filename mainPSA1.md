@@ -10,3 +10,9 @@ koordinaten = {
     ]
 
 }
+
+Zugangsdaten = {
+    'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
+    'Authorization': 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjZlM2NmMjA2OGY5MjQwMmJhYmY2YzNjM2NlMDYwNjg1IiwiaCI6Im11cm11cjY0In0=',
+    'Content-Type': 'application/json; charset=utf-8'
+}
