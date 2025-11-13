@@ -1,5 +1,5 @@
 # Pruefungsstudienarbeit
-PSA Alexander Hollenrieder, Thilo Fuhrmann, Dominik Schüll, Tobias Zint
+PSA Alexander Hollenrieder, Thilo Fuhrmann, Dominic Schüll, Tobias Zint
 import numpy
 
 koordinaten = {
