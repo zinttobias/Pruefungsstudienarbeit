@@ -6,7 +6,8 @@ import requests as req
 koordinaten = {
     "coordinates": [
         [10.314009, 47.716193],     # Kempten
-        [10.642521, 48.061231]      # Türkheim   
+        [10.642521, 48.061231]      # Türkheim
+        [45.5236, -122.6750]        # Portland   
     ]
 
 }
