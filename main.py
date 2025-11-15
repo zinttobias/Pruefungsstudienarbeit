@@ -4,6 +4,10 @@
 import numpy
 import requests as req 
 import folium
+import openrouteservice
+
+#ORS-Client Zugang
+client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRmNzExNzZkYmZhMzQ4Njc5OGE3MDEzM2EwMWFiOWE5IiwiaCI6Im11cm11cjY0In0=")
          
 koordinaten = {
     "coordinates": [
@@ -11,45 +15,43 @@ koordinaten = {
         [10.642521, 48.061231],      # Türkheim
         [45.5236, -122.6750]        # Portland   
     ]
-
 }
 
-Zugangsdaten = {
-    'Accept': 'application/json, application/geo+json, application/gpx+xml, img/png; charset=utf-8',
-    'Authorization': 'eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6IjZlM2NmMjA2OGY5MjQwMmJhYmY2YzNjM2NlMDYwNjg1IiwiaCI6Im11cm11cjY0In0=',
-    'Content-Type': 'application/json; charset=utf-8'
-}
+#Route Kempten -> Türkkheim
+coords = ((10.314009, 47.716193), (10.642521, 48.061231))
+
+# Route mit dem Fahrrad berechnen
+route = client.directions(coords, profile='cycling-regular', format='geojson')
+
+# Geometrie extrahieren und decodieren
+geometry = route['features'][0]['geometry']
+coords_route = geometry['coordinates'] 
 
 #Start und Zielpunkt definieren
 point_a = [10.314009, 47.716193]
 point_b =  [10.642521, 48.061231]
 
 #Map-Anzeigebereich
-m = folium.Map(location=(10.314009, 47.716193), zoom_start=12)
+m = folium.Map(location=(47.716193, 10.314009), zoom_start=12)
 
 #Marker für Start und Ziel
 folium.Marker(
-    location = [10.314009, 47.716193],
+    location = [47.716193, 10.314009],
     tooltip = "Start",
     popup = "Kempten",
     icon = folium.Icon(icon="cloud"),
 ).add_to(m)
 
 folium.Marker(
-    location = [10.642521, 48.061231],
-    tooltip = "Click me!",
-    popup = "Ziel",
+    location = [48.061231, 10.642521],
+    tooltip = "Ziel",
+    popup = "Türkeim",
     icon = folium.Icon(color="green"),
 ).add_to(m)
 
-#Verbinden der beiden Punkte
-folium.PolyLine(
-    locations=[point_a, point_b],
-    color="blue",
-    weight=4,
-    opacity=0.8
-).add_to(m)
-
+# ORS-Route hinzufügen
+folium.PolyLine([(lat, lon) for lon, lat in coords_route],
+                color="red", weight=5, opacity=0.8).add_to(m)
 
 #Anzeigen/Speichern der Karte
 m
