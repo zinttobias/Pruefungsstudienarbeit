@@ -1,5 +1,5 @@
 # Pruefungsstudienarbeit
-# PSA Alexander Hollenrieder, Thilo Fuhrmann, Dominic Schüll, Tobias Zint
+# Gruppenmitglieder: Alexander Hollenrieder, Thilo Fuhrmann, Dominic Schüll, Tobias Zint
 
 import numpy
 import requests as req 
@@ -52,6 +52,32 @@ folium.Marker(
 # ORS-Route hinzufügen
 folium.PolyLine([(lat, lon) for lon, lat in coords_route],
                 color="red", weight=5, opacity=0.8).add_to(m)
+
+
+# Anzeigen der Routen-Informationen:
+
+# Entfernung und Dauer aus der Route extrahieren 
+Distanz_m = route['features'][0]['properties']['summary']['distance']   # Distanz in Meter
+Dauer_s  = route['features'][0]['properties']['summary']['duration']    # Zeitdauer in Sekunden
+
+Distanz_km = Distanz_m / 1000                                           #Distanz in Kilometer
+Dauer_min = Dauer_s / 60                                                #Dauer in Minuten
+
+# Popup-Text erzeugen
+info_text = f"Entfernung: {Distanz_km:.2f} km<br>Dauer: {Dauer_min:.1f} min"
+
+# Marker in der Mitte der Route setzen
+Mitte_Route = len(coords_route) // 2
+Mitte1, Mitte2 = coords_route[Mitte_Route]
+
+# Routeninfo-Marker hinzufügen mit Folium
+folium.Marker(
+    location=[Mitte2, Mitte1],
+    tooltip="Routeninfo",
+    popup=folium.Popup(info_text, max_width=300),
+    icon=folium.Icon(color="blue", icon="info-sign")
+).add_to(m)
+
 
 #Anzeigen/Speichern der Karte
 m
