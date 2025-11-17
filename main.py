@@ -83,6 +83,15 @@ folium.Marker(
     icon=folium.Icon(color="blue", icon="info-sign")
 ).add_to(m)
 
+# Kartenzoom auf die Route anpassen
+# Bounding Box Minimal- und Maximalwerte aus der Route berechnen
+lats = [lat for lon, lat in coords_route]
+lons = [lon for lon, lat in coords_route]
+
+bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
+
+# Map auf die Bounds zoomen
+m.fit_bounds(bounds, padding=(80, 80))  # Rand von 80 Pixeln hinzufügen (padding)
 
 #Anzeigen/Speichern der Karte
 m
