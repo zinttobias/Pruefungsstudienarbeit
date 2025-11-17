@@ -39,14 +39,14 @@ folium.Marker(
     location = [47.716193, 10.314009],
     tooltip = "Start",
     popup = "Kempten",
-    icon = folium.Icon(icon="cloud"),
+    icon = folium.Icon(color = "blue", icon = "remove"),
 ).add_to(m)
 
 folium.Marker(
     location = [48.061231, 10.642521],
     tooltip = "Ziel",
     popup = "Türkeim",
-    icon = folium.Icon(color="green"),
+    icon = folium.Icon(color="red", icon = "flag"),
 ).add_to(m)
 
 # ORS-Route hinzufügen
