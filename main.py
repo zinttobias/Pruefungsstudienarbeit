@@ -83,6 +83,9 @@ folium.Marker(
     icon=folium.Icon(color="blue", icon="info-sign")
 ).add_to(m)
 
+
+# Kartenanpassungen unter dieser Zeile:
+
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
 lats = [lat for lon, lat in coords_route]
@@ -92,6 +95,14 @@ bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 
 # Map auf die Bounds zoomen
 m.fit_bounds(bounds, padding=(80, 80))  # Rand von 80 Pixeln hinzufügen (padding)
+
+# Überschrift auf der Karte 
+title_html = f'''                                                   
+     <h3 align="center" style="font-size:22px; margin-top:10px;">
+         <b>Fahrradroute: {Startpunkt} -> {Zielpunkt}</b>
+     </h3>
+'''
+m.get_root().html.add_child(folium.Element(title_html))
 
 #Anzeigen/Speichern der Karte
 m
