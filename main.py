@@ -9,18 +9,13 @@ import openrouteservice
 #ORS-Client Zugang
 client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRmNzExNzZkYmZhMzQ4Njc5OGE3MDEzM2EwMWFiOWE5IiwiaCI6Im11cm11cjY0In0=")
          
-koordinaten = {
-    "coordinates": [
-        [10.314009, 47.716193],     # Kempten
-        [10.642521, 48.061231],      # Türkheim
-        [45.5236, -122.6750]        # Portland   
-    ]
-}
-#Eingabe der Durchschnittsgeschwindigkeit in km/h. Abhängig von der eigenen Leistung des Fahrers
-Durchschnittsgeschwindigkeit_kmh = 25
 
-#Route Kempten -> Türkkheim
-coords = ((10.314009, 47.716193), (10.642521, 48.061231))
+# Eingabe der Wunschstrecke
+
+Durchschnittsgeschwindigkeit_kmh = 25   # Eingabe der Durchschnittsgeschwindigkeit in km/h. Abhängig von der eigenen Leistung des Fahrers
+Startpunkt = "Kempten"                  # Name des Startpunktes
+Zielpunkt = "Türkheim"                  # Name des Zielpunktes
+coords = ((10.314009, 47.716193), (10.642521, 48.061231))   #Route Kempten -> Türkkheim
 
 # Route mit dem Fahrrad berechnen
 route = client.directions(coords, profile='cycling-regular', format='geojson')
@@ -40,14 +35,14 @@ m = folium.Map(location=(47.716193, 10.314009), zoom_start=12)
 folium.Marker(
     location = [47.716193, 10.314009],
     tooltip = "Start",
-    popup = "Kempten",
-    icon = folium.Icon(color = "blue", icon = "remove"),
+    popup = Startpunkt,
+    icon = folium.Icon(color = "green", icon = "remove"),
 ).add_to(m)
 
 folium.Marker(
     location = [48.061231, 10.642521],
     tooltip = "Ziel",
-    popup = "Türkeim",
+    popup = Zielpunkt,
     icon = folium.Icon(color="red", icon = "flag"),
 ).add_to(m)
 
@@ -85,7 +80,7 @@ folium.Marker(
     location=[Mitte2, Mitte1],
     tooltip="Routeninfo",
     popup=folium.Popup(info_text, max_width=300),
-    icon=folium.Icon(color="yellow", icon="info-sign")
+    icon=folium.Icon(color="blue", icon="info-sign")
 ).add_to(m)
 
 
