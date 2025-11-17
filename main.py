@@ -16,6 +16,8 @@ koordinaten = {
         [45.5236, -122.6750]        # Portland   
     ]
 }
+#Eingabe der Durchschnittsgeschwindigkeit in km/h. Abhängig von der eigenen Leistung des Fahrers
+Durchschnittsgeschwindigkeit_kmh = 25
 
 #Route Kempten -> Türkkheim
 coords = ((10.314009, 47.716193), (10.642521, 48.061231))
@@ -57,14 +59,22 @@ folium.PolyLine([(lat, lon) for lon, lat in coords_route],
 # Anzeigen der Routen-Informationen:
 
 # Entfernung und Dauer aus der Route extrahieren 
-Distanz_m = route['features'][0]['properties']['summary']['distance']   # Distanz in Meter
-Dauer_s  = route['features'][0]['properties']['summary']['duration']    # Zeitdauer in Sekunden
+Distanz_m = route['features'][0]['properties']['summary']['distance']       # Distanz in Meter
+Dauer_s_ORS  = route['features'][0]['properties']['summary']['duration']    # Zeitdauer in Sekunden
 
-Distanz_km = Distanz_m / 1000                                           #Distanz in Kilometer
-Dauer_min = Dauer_s / 60                                                #Dauer in Minuten
+Dauer_h_ORS = Dauer_s_ORS / 3600                                            # Dauer in Stunden    
+
+Distanz_km = Distanz_m / 1000                                               #Distanz in Kilometer
+Dauer_h_eigen = Distanz_km / Durchschnittsgeschwindigkeit_kmh               #Dauer in Stunden
 
 # Popup-Text erzeugen
-info_text = f"Entfernung: {Distanz_km:.2f} km<br>Dauer: {Dauer_min:.1f} min"
+info_text = (
+    f"<b>Routeninformationen</b><br>"
+    f"Entfernung: {Distanz_km:.2f} km<br>"
+    f"Dauer (ORS): {Dauer_h_ORS:.1f} h<br>"
+    f"Dauer (eigene Berechnung): {Dauer_h_eigen:.1f} h<br>"
+    f"Geschwindigkeit angenommen: {Durchschnittsgeschwindigkeit_kmh} km/h"
+)
 
 # Marker in der Mitte der Route setzen
 Mitte_Route = len(coords_route) // 2
@@ -75,7 +85,7 @@ folium.Marker(
     location=[Mitte2, Mitte1],
     tooltip="Routeninfo",
     popup=folium.Popup(info_text, max_width=300),
-    icon=folium.Icon(color="blue", icon="info-sign")
+    icon=folium.Icon(color="yellow", icon="info-sign")
 ).add_to(m)
 
 
