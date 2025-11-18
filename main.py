@@ -12,15 +12,15 @@ client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyND
 # Eingabe der Wunschstrecke und Durchschnittsgeschwindigkeit
 
 def routen_abfrage():
-    startpunkt = input("Geben Sie den Startpunkt der Route ein:")
+    startpunkt = input("Geben Sie den Startpunkt der Route ein:")                               # Eingabe Startpunkt
     while not startpunkt.strip():
         startpunkt = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
 
-    zielpunkt = input("Geben Sie den Zielpunkt der Route ein:")
+    zielpunkt = input("Geben Sie den Zielpunkt der Route ein:")                                 # Eingabe Zielpunkt
     while not zielpunkt.strip():
         zielpunkt = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
 
-    zwischenstopp = None
+    zwischenstopp = None                                                                        # Abfrage auf Zwischenstopp                   
     auswahl_zs = input("Möchten Sie einen Zwischenstopp hinzufügen? (ja/nein): ").lower()
 
     if auswahl_zs == "ja":
@@ -28,7 +28,7 @@ def routen_abfrage():
         while not zwischenstopp.strip():
             zwischenstopp = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
 
-    v_avg = input("Vorraussichtliche Durchschnittsgeschwindigkeit in km/h: ")
+    v_avg = input("Vorraussichtliche Durchschnittsgeschwindigkeit in km/h: ")                  # Eingabe Durchschnittsgeschwindigkeit
     while not v_avg.strip():
         v_avg = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
 
@@ -39,7 +39,7 @@ def routen_abfrage():
         "Durchschnittsgeschwindigkeit": float(v_avg)    # Umwandeln in einen float Typ
     }
 
-route_v = routen_abfrage()                      # Aufruf der Funktion und Speichern der Werte in route_v
+route_v = routen_abfrage()                              # Aufruf der Funktion und Speichern der Werte in route_v
 
 #Funktion Stadtname zu Koordinaten
 
@@ -59,11 +59,11 @@ geometry = route['features'][0]['geometry']
 coords_route = geometry['coordinates'] 
 
 #Start und Zielpunkt definieren
-start = coords[0]           #Start      [10.314009, 47.716193]
-destination = coords[1]     #Ziel       [10.642521, 48.061231]
+start = coords[0]                                                   #Startkoordinaten
+destination = coords[1]                                             #Zielkoordinaten       
 
 #Map-Anzeigebereich
-m = folium.Map(location=(start[1], start[0]), zoom_start=12)      #[latitude, longitude]
+m = folium.Map(location=(start[1], start[0]), zoom_start=12)        #[latitude, longitude]
 
 #Marker für Start und Ziel
 folium.Marker(
