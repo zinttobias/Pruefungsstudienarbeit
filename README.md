@@ -5,4 +5,8 @@ route_v["Zielpunkt"]
 route_v["Zwischenstopp"]
 route_v["Durchschnittsgeschwindigkeit"]
 ----------------------------------------------------------------------------------------
-## nächster Punkt
+## Definition von "Done" für abgeschlossene Tasks
+- Die Funktion wurde getestet und für funktionsfähig befunden
+- Der gesamte Code der erstellen Funktion wurde in den Main-branch überführt
+----------------------------------------------------------------------------------------
+## Nächster Punkt
