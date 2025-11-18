@@ -54,7 +54,7 @@ start = get_coords(route_v["Startpunkt"])
 ziel = get_coords(route_v["Zielpunkt"])
 zs_coords = None
 
-coords = [start]
+coords = [start]                                          # Liste mit start als erstem Element
 
 if route_v["Zwischenstopp"] is not None:                  # Wenn Zwischenstopp gefragt
     zs_coords = get_coords(route_v["Zwischenstopp"])      # Zwischenstopp einfügen
@@ -116,7 +116,7 @@ Dauer_h_ORS = Dauer_s_ORS / 3600                                            # Da
 Distanz_km = Distanz_m / 1000                                               #Distanz in Kilometer
 Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]        #Dauer in Stunden
 
-# Popup-Text erzeugen
+# Text für den Routeninfo Marker erzeugen
 info_text = (
     f"<b>Routeninformationen</b><br>"
     f"Entfernung: {Distanz_km:.2f} km<br>"
@@ -129,7 +129,7 @@ info_text = (
 Mitte_Route = len(coords_route) // 2
 Mitte1, Mitte2 = coords_route[Mitte_Route]
 
-# Routeninfo-Marker hinzufügen mit Folium
+# Routeninfo-Marker hinzufügen
 folium.Marker(
     location=[Mitte2, Mitte1],
     tooltip="Routeninfo",
