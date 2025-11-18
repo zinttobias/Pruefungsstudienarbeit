@@ -9,13 +9,22 @@ import openrouteservice
 #ORS-Client Zugang
 client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRmNzExNzZkYmZhMzQ4Njc5OGE3MDEzM2EwMWFiOWE5IiwiaCI6Im11cm11cjY0In0=")
          
+#Funktion Stadtname zu Koordinaten
+
+def get_coords(city_name):
+    response = client.pelias_search(text=city_name, size=1)         # Anfrage Stadtname mit einem Ergebnis
+    coords = response['features'][0]['geometry']['coordinates']   # Erstes Ergebnis von features, Übergabe der Koordinaten
+    return coords                                                   # [longitude, latitude] in coords
+
 
 # Eingabe der Wunschstrecke
 
 Durchschnittsgeschwindigkeit_kmh = 25   # Eingabe der Durchschnittsgeschwindigkeit in km/h. Abhängig von der eigenen Leistung des Fahrers
 Startpunkt = "Kempten"                  # Name des Startpunktes
-Zielpunkt = "Türkheim"                  # Name des Zielpunktes
-coords = ((10.314009, 47.716193), (10.642521, 48.061231))   #Route Kempten -> Türkkheim
+Zielpunkt = "München"                  # Name des Zielpunktes
+#coords = ((10.314009, 47.716193), (10.642521, 48.061231))   #Route Kempten -> Türkkheim
+coords = (get_coords(Startpunkt), get_coords(Zielpunkt))            #Koordinaten abrufen
+
 
 # Route mit dem Fahrrad berechnen
 route = client.directions(coords, profile='cycling-regular', format='geojson')
@@ -25,22 +34,22 @@ geometry = route['features'][0]['geometry']
 coords_route = geometry['coordinates'] 
 
 #Start und Zielpunkt definieren
-point_a = [10.314009, 47.716193]
-point_b =  [10.642521, 48.061231]
+start = coords[0]           #Start      [10.314009, 47.716193]
+destination = coords[1]     #Ziel       [10.642521, 48.061231]
 
 #Map-Anzeigebereich
-m = folium.Map(location=(47.716193, 10.314009), zoom_start=12)
+m = folium.Map(location=(start[1], start[0]), zoom_start=12)      #[latitude, longitude]
 
 #Marker für Start und Ziel
 folium.Marker(
-    location = [47.716193, 10.314009],
+    location = [start[1], start[0]],
     tooltip = "Start",
     popup = Startpunkt,
     icon = folium.Icon(color = "green", icon = "remove"),
 ).add_to(m)
 
 folium.Marker(
-    location = [48.061231, 10.642521],
+    location = [destination[1], destination[0]],
     tooltip = "Ziel",
     popup = Zielpunkt,
     icon = folium.Icon(color="red", icon = "flag"),
@@ -105,6 +114,5 @@ title_html = f'''
 m.get_root().html.add_child(folium.Element(title_html))
 
 #Anzeigen/Speichern der Karte
-m
 m.save("meine_karte.html")
 
