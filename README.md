@@ -9,4 +9,5 @@ route_v["Durchschnittsgeschwindigkeit"]
 - Die Funktion wurde getestet und für funktionsfähig befunden
 - Der gesamte Code der erstellen Funktion wurde in den Main-branch überführt
 ----------------------------------------------------------------------------------------
-## Nächster Punkt
+## @Dominik 
+Ich musste deinen Code, welcher die Route erstellt abändern, damit ich einen Zwischenstopp hinzufügen kann
