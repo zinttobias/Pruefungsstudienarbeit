@@ -48,8 +48,19 @@ def get_coords(city_name):
     coords = response['features'][0]['geometry']['coordinates']     # Erstes Ergebnis von features, Übergabe der Koordinaten
     return coords                                                   # [longitude, latitude] in coords
 
-coords = (get_coords(route_v["Startpunkt"]), get_coords(route_v["Zielpunkt"]))            # Koordinaten abrufen
+# Koordinaten für die Route abrufen
 
+start = get_coords(route_v["Startpunkt"])
+ziel = get_coords(route_v["Zielpunkt"])
+zs_coords = None
+
+coords = [start]
+
+if route_v["Zwischenstopp"] is not None:                  # Wenn Zwischenstopp gefragt
+    zs_coords = get_coords(route_v["Zwischenstopp"])      # Zwischenstopp einfügen
+    coords.append(zs_coords)
+
+coords.append(ziel)
 
 # Route mit dem Fahrrad berechnen
 route = client.directions(coords, profile='cycling-regular', format='geojson')
@@ -59,13 +70,12 @@ geometry = route['features'][0]['geometry']
 coords_route = geometry['coordinates'] 
 
 #Start und Zielpunkt definieren
-start = coords[0]                                                   #Startkoordinaten
-destination = coords[1]                                             #Zielkoordinaten       
+destination = ziel                                               #Zielkoordinaten       
 
 #Map-Anzeigebereich
-m = folium.Map(location=(start[1], start[0]), zoom_start=12)        #[latitude, longitude]
+m = folium.Map(location=(start[1], start[0]), zoom_start=12)     #[latitude, longitude]
 
-#Marker für Start und Ziel
+#Marker für Startpunkt
 folium.Marker(
     location = [start[1], start[0]],
     tooltip = "Start",
@@ -73,6 +83,16 @@ folium.Marker(
     icon = folium.Icon(color = "green", icon = "remove"),
 ).add_to(m)
 
+# Marker für Zwischenstopp
+if zs_coords is not None:
+    folium.Marker(
+        location=[zs_coords[1], zs_coords[0]],
+        tooltip="Zwischenstopp",
+        popup=route_v["Zwischenstopp"],
+        icon=folium.Icon(color="orange", icon="pause"),
+    ).add_to(m)
+
+# Marker für Zielpunkt
 folium.Marker(
     location = [destination[1], destination[0]],
     tooltip = "Ziel",
@@ -102,7 +122,7 @@ info_text = (
     f"Entfernung: {Distanz_km:.2f} km<br>"
     f"Dauer (ORS): {Dauer_h_ORS:.1f} h<br>"
     f"Dauer (eigene Berechnung): {Dauer_h_eigen:.1f} h<br>"
-    f"Geschwindigkeit angenommen: {route_v["Durchschnittsgeschwindigkeit"]} km/h"
+    f"Geschwindigkeit angenommen: {route_v['Durchschnittsgeschwindigkeit']} km/h"
 )
 
 # Marker in der Mitte der Route setzen
@@ -140,4 +160,3 @@ m.get_root().html.add_child(folium.Element(title_html))
 
 #Anzeigen/Speichern der Karte
 m.save("meine_karte.html")
-
