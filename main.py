@@ -137,8 +137,24 @@ folium.Marker(
     icon=folium.Icon(color="blue", icon="info-sign")
 ).add_to(m)
 
+# Dynamisches HTML für Sidebar
+sidebar = f"""
+<div style="position: fixed; 
+            top: 180px; left: 10px; width: 260px; height: auto; 
+            background-color: white; 
+            border:2px solid grey; 
+            z-index:9999; 
+            padding:10px; 
+            overflow:auto;">
+    <h4>Routeninformationen</h4>
+    <p><b>Distanz:</b> {Distanz_km:.2f} km</p>
+    <p><b>Dauer (ORS):</b> {Dauer_h_ORS:.2f} h</p>
+    <p><b>Dauer (eigene Berechnung):</b> {Dauer_h_eigen:.2f} h</p>
+    <p><b>Geschwindigkeit angenommen:</b> {route_v['Durchschnittsgeschwindigkeit']:.2f} km/h h</p>
+</div>
+"""
 
-# Kartenanpassungen unter dieser Zeile:
+##### Kartenanpassungen #####
 
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
@@ -157,6 +173,9 @@ title_html = f'''
      </h3>
 '''
 m.get_root().html.add_child(folium.Element(title_html))
+
+# HTML an Karte anhängen
+m.get_root().html.add_child(folium.Element(sidebar))
 
 #Anzeigen/Speichern der Karte
 m.save("meine_karte.html")
