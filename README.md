@@ -27,4 +27,4 @@ Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so 
 ## Installation der Wetterdienst API
 
 - Bitte jeder die Wetterdienst API mit Anaconda installieren: pip install wetterdienst
-
+- Vergesst es die API vom Deutschen Wetterdienst ist bodenlos und funktioniert nicht die hat mir grad 2h Lebenszeit und den letzten Nerv geraubt. Ich nutze jetzt die API von Open Meteo da braucht man auch nichts installieren da reicht die URL
