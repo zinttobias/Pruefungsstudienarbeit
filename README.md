@@ -18,5 +18,8 @@ Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so 
 - Die Funktion wurde getestet und für funktionsfähig befunden
 - Der gesamte Code der erstellen Funktion wurde in den Main-branch überführt
 ----------------------------------------------------------------------------------------
-## @Dominik 
-Ich musste deinen Code, welcher die Route erstellt abändern, damit ich einen Zwischenstopp hinzufügen kann
+## Auslagerung der Standartfunktionen
+
+- Die Funktionen welche zu Folium bzw Openrouteservice gehören wurden in functionsbasic ausgelagert
+- Alle Packages die in Zukunft noch kommen sollten in functionsbasic eingeführt werden
+- Das Marker setzen funktioniert jetzt mit Klassen z.B. place_marker.start(start, route_v["Startpunkt"]) 

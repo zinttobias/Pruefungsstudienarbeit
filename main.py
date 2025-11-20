@@ -1,19 +1,19 @@
 # Pruefungsstudienarbeit Programmieren 3 WS 25/26
 # Gruppenmitglieder: Alexander Hollenrieder, Thilo Fuhrmann, Dominic Schüll, Tobias Zint
 
-import myfunction as fk
-from myfunction import *
+import functionsbasic as fb
+from functionsbasic import *
 
-route_v = fk.routen_abfrage()                                   # Schreiben der Routenabfrage in route_v Dictionary
+route_v = fb.routen_abfrage()                                   # Schreiben der Routenabfrage in route_v Dictionary
 
-start = fk.get_coords(route_v["Startpunkt"])                    # Startkoordinaten für die Route abrufen
-ziel =  fk.get_coords(route_v["Zielpunkt"])                     # Zielkoordinaten für die Route abrufen
+start = fb.get_coords(route_v["Startpunkt"])                    # Startkoordinaten für die Route abrufen
+ziel =  fb.get_coords(route_v["Zielpunkt"])                     # Zielkoordinaten für die Route abrufen
 zs_coords = None
 
 coords = [start]                                                # Liste mit start als erstem Element
 
 if route_v["Zwischenstopp"] is not None:                        # Wenn Zwischenstopp gefragt
-    zs_coords = fk.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
+    zs_coords = fb.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
     coords.append(zs_coords)
 
 coords.append(ziel)
@@ -33,7 +33,7 @@ our_map = folium.Map(location=(start[1], start[0]), zoom_start=12)     #[latitud
 
 
 # Platzieren der Folium Marker auf der Karte
-place_marker = fk.MarkerPlacingFolium(our_map)
+place_marker = fb.MarkerPlacingFolium(our_map)
 
 place_marker.start(start, route_v["Startpunkt"])
 
@@ -66,8 +66,8 @@ bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 our_map.fit_bounds(bounds, padding=(80, 80))                      # Rand von 80 Pixeln hinzufügen (padding)
 
 
-Headline = fk.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])                                          # Platzieren der Überschrift
-Sidebar =  fk.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, route_v["Durchschnittsgeschwindigkeit"])     # Platzieren der Sidebar
+Headline = fb.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])                                          # Platzieren der Überschrift
+Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, route_v["Durchschnittsgeschwindigkeit"])     # Platzieren der Sidebar
 
 our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
