@@ -1,5 +1,9 @@
 # Readme Prüfungsstudienarbeit
 
+##Produktziel
+
+Für Radfahrer mit dem Wunsch sich automatisch Routen über eine Onlinekarte generieren zu können, entwickeln wir ein Tool, das solche durch Eingabe von Start- und Endpunkt erstellen und anzeigen kann.
+
 ## Eingabeform Start-/ Endpunkt:
 
 Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so aufrufen:
