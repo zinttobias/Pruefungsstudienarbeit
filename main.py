@@ -116,14 +116,8 @@ Dauer_h_ORS = Dauer_s_ORS / 3600                                            # Da
 Distanz_km = Distanz_m / 1000                                               #Distanz in Kilometer
 Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]        #Dauer in Stunden
 
-# Text für den Routeninfo Marker erzeugen
-info_text = (
-    f"<b>Routeninformationen</b><br>"
-    f"Entfernung: {Distanz_km:.2f} km<br>"
-    f"Dauer (ORS): {Dauer_h_ORS:.1f} h<br>"
-    f"Dauer (eigene Berechnung): {Dauer_h_eigen:.1f} h<br>"
-    f"Geschwindigkeit angenommen: {route_v['Durchschnittsgeschwindigkeit']} km/h"
-)
+
+##### Kartenanpassungen #####
 
 # Dynamisches HTML für Sidebar
 sidebar = f"""
@@ -142,8 +136,6 @@ sidebar = f"""
 </div>
 """
 
-##### Kartenanpassungen #####
-
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
 lats = [lat for lon, lat in coords_route]
@@ -155,11 +147,19 @@ bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 m.fit_bounds(bounds, padding=(80, 80))  # Rand von 80 Pixeln hinzufügen (padding)
 
 # Überschrift auf der Karte 
-title_html = f'''                                                   
-     <h3 align="center" style="font-size:22px; margin-top:10px;">
-         <b>Fahrradroute: {route_v["Startpunkt"]} -> {route_v["Zielpunkt"]}</b>
-     </h3>
-'''
+title_html = f"""
+<div style="position: fixed; 
+            top: 10px; 
+            left: 50%; 
+            transform: translateX(-50%);
+            z-index: 9999; 
+            background-color: white; 
+            padding: 5px 10px; 
+            border-radius: 5px;
+            font-size: 22px;">
+    <b>Fahrradroute: {route_v["Startpunkt"]} -> {route_v["Zielpunkt"]}</b>
+</div>
+"""
 m.get_root().html.add_child(folium.Element(title_html))
 
 # HTML an Karte anhängen
