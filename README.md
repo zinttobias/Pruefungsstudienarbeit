@@ -23,3 +23,8 @@ Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so 
 - Die Funktionen welche zu Folium bzw Openrouteservice gehören wurden in functionsbasic ausgelagert
 - Alle Packages die in Zukunft noch kommen sollten in functionsbasic eingeführt werden
 - Das Marker setzen funktioniert jetzt mit Klassen z.B. place_marker.start(start, route_v["Startpunkt"]) 
+
+## Installation der Wetterdienst API
+
+- Bitte jeder die Wetterdienst API mit Anaconda installieren: pip install wetterdienst
+

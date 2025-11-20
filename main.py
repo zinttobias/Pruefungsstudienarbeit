@@ -3,6 +3,10 @@
 
 import functionsbasic as fb
 from functionsbasic import *
+import functionsweather as fw
+from functionsweather import *
+
+######################################################################################################################
 
 route_v = fb.routen_abfrage()                                   # Schreiben der Routenabfrage in route_v Dictionary
 
@@ -31,6 +35,26 @@ destination = ziel                            #Zielkoordinaten
 #Map-Anzeigebereich
 our_map = folium.Map(location=(start[1], start[0]), zoom_start=12)     #[latitude, longitude]
 
+##################################### Wetter ########################################################################
+
+start_weather = fw.getWeather(start[1], start[0])      # Wetter am Startpunkt abrufen
+ziel_weather  = fw.getWeather(ziel[1], ziel[0])        # Wetter am Zielpunkt abrufen
+
+add_weather_circle(                                     # Temperaturkreis am Startpunkt
+    our_map,
+    start,
+    start_weather["temperatur"],
+    popup_text=f"Temperatur: {start_weather['temperatur']} °C"
+)
+
+add_weather_circle(                                     # Temperaturkreis am Zielpunkt   
+    our_map,
+    ziel,
+    ziel_weather["temperatur"],
+    popup_text=f"Temperatur: {ziel_weather['temperatur']} °C"
+)
+
+######################################################################################################################
 
 # Platzieren der Folium Marker auf der Karte
 place_marker = fb.MarkerPlacingFolium(our_map)
