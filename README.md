@@ -1,6 +1,6 @@
 # Readme Prüfungsstudienarbeit
 
-##Produktziel
+## Produktziel
 
 Für Radfahrer mit dem Wunsch sich automatisch Routen über eine Onlinekarte generieren zu können, entwickeln wir ein Tool, das solche durch Eingabe von Start- und Endpunkt erstellen und anzeigen kann.
 
