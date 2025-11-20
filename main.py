@@ -125,18 +125,6 @@ info_text = (
     f"Geschwindigkeit angenommen: {route_v['Durchschnittsgeschwindigkeit']} km/h"
 )
 
-# Marker in der Mitte der Route setzen
-Mitte_Route = len(coords_route) // 2
-Mitte1, Mitte2 = coords_route[Mitte_Route]
-
-# Routeninfo-Marker hinzufügen
-folium.Marker(
-    location=[Mitte2, Mitte1],
-    tooltip="Routeninfo",
-    popup=folium.Popup(info_text, max_width=300),
-    icon=folium.Icon(color="blue", icon="info-sign")
-).add_to(m)
-
 # Dynamisches HTML für Sidebar
 sidebar = f"""
 <div style="position: fixed; 
