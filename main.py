@@ -25,7 +25,7 @@ if route_v["Zwischenstopp"] is not None:                        # Wenn Zwischens
 coords.append(ziel)
 
 # Route mit dem Fahrrad berechnen
-route_bike = client.directions(coords, profile='cycling-regular', format='geojson')
+route_bike = client.directions(coords, elevation = True, profile='cycling-regular', format='geojson')
 
 # Geometrie extrahieren und decodieren
 geometry = route_bike['features'][0]['geometry']
@@ -68,7 +68,7 @@ place_marker.ziel(ziel, route_v["Zielpunkt"])
 
 
 # ORS-Route hinzufügen
-folium.PolyLine([(lat, lon) for lon, lat in coords_route],
+folium.PolyLine([(lat, lon) for lon, lat, _ in coords_route],
                color="red", weight=5, opacity=0.8).add_to(our_map)
 
 # Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten
@@ -81,8 +81,8 @@ Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]            
 
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
-lats = [lat for lon, lat in coords_route]
-lons = [lon for lon, lat in coords_route]                           
+lats = [lat for lon, lat, _ in coords_route]
+lons = [lon for lon, lat, _ in coords_route]                           
 
 bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 
