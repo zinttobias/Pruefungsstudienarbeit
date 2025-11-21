@@ -5,6 +5,8 @@ import functionsbasic as fb
 from functionsbasic import *
 import functionsweather as fw
 from functionsweather import *
+from folium.plugins import MiniMap, MeasureControl
+
 
 ######################################################################################################################
 
@@ -67,7 +69,7 @@ place_marker.ziel(ziel, route_v["Zielpunkt"])
 
 # ORS-Route hinzufügen
 folium.PolyLine([(lat, lon) for lon, lat in coords_route],
-                color="red", weight=5, opacity=0.8).add_to(our_map)
+               color="red", weight=5, opacity=0.8).add_to(our_map)
 
 # Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten
 Distanz_m = route_bike['features'][0]['properties']['summary']['distance']      # Distanz in Meter
@@ -104,4 +106,10 @@ our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML
 
 #######################################################################################################################
 
-our_map.save("meine_karte.html")                                  #Anzeigen/Speichern der Karte
+MiniMap().add_to(our_map)                                         # Hinzufügen einer MiniMap
+MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
+
+
+
+our_map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
+
