@@ -78,6 +78,9 @@ Dauer_h_ORS = Dauer_s_ORS / 3600                                                
 Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
 Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]            # Dauer in Stunden
 
+#Höhenmeter aus der Route extrahieren
+elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
+elevation_down = route_bike['features'][0]['properties']['descent']              # Höhenmeter Abstieg
 
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
@@ -99,7 +102,9 @@ Sidebar =  fb.place_sidebar(Distanz_km,
                             route_v["Startpunkt"],
                             route_v["Zielpunkt"],
                             start_weather["temperatur"],
-                            ziel_weather["temperatur"])             
+                            ziel_weather["temperatur"],
+                            elevation_up,
+                            elevation_down)             
 
 our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
