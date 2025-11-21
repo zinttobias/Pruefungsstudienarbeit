@@ -35,7 +35,7 @@ destination = ziel                            #Zielkoordinaten
 #Map-Anzeigebereich
 our_map = folium.Map(location=(start[1], start[0]), zoom_start=12)     #[latitude, longitude]
 
-##################################### Wetter ########################################################################
+############################################### Wetter ##############################################################
 
 start_weather = fw.getWeather(start[1], start[0])      # Wetter am Startpunkt abrufen
 ziel_weather  = fw.getWeather(ziel[1], ziel[0])        # Wetter am Zielpunkt abrufen
@@ -53,8 +53,6 @@ add_weather_circle(                                     # Temperaturkreis am Zie
     ziel_weather["temperatur"],
     popup_text=f"Temperatur: {ziel_weather['temperatur']} °C"
 )
-
-######################################################################################################################
 
 # Platzieren der Folium Marker auf der Karte
 place_marker = fb.MarkerPlacingFolium(our_map)
@@ -87,14 +85,23 @@ lons = [lon for lon, lat in coords_route]
 bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 
 # Map auf die Bounds zoomen
-our_map.fit_bounds(bounds, padding=(80, 80))                      # Rand von 80 Pixeln hinzufügen (padding)
+our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
 
+#################################### Überschrift und Sidebar #########################################################
 
-Headline = fb.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])                                          # Platzieren der Überschrift
-Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, route_v["Durchschnittsgeschwindigkeit"])     # Platzieren der Sidebar
+Headline = fb.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])              
+Sidebar =  fb.place_sidebar(Distanz_km, 
+                            Dauer_h_ORS, 
+                            Dauer_h_eigen, 
+                            route_v["Durchschnittsgeschwindigkeit"],
+                            route_v["Startpunkt"],
+                            route_v["Zielpunkt"],
+                            start_weather["temperatur"],
+                            ziel_weather["temperatur"])             
 
 our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
 
+#######################################################################################################################
 
 our_map.save("meine_karte.html")                                  #Anzeigen/Speichern der Karte

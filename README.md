@@ -24,7 +24,7 @@ Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so 
 - Alle Packages die in Zukunft noch kommen sollten in functionsbasic eingeführt werden
 - Das Marker setzen funktioniert jetzt mit Klassen z.B. place_marker.start(start, route_v["Startpunkt"]) 
 
-## Installation der Wetterdienst API
+## Wetterdienst API
 
-- Bitte jeder die Wetterdienst API mit Anaconda installieren: pip install wetterdienst
-- Vergesst es die API vom Deutschen Wetterdienst ist bodenlos und funktioniert nicht die hat mir grad 2h Lebenszeit und den letzten Nerv geraubt. Ich nutze jetzt die API von Open Meteo da braucht man auch nichts installieren da reicht die URL
+- Da die API vom deutschen Wetterdienst nicht funktioniert wie gewünscht habe ich jetzt die API von Open Meteo
+eingebunden, welche auch eine Installation in Anaconda benötigt

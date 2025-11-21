@@ -2,6 +2,7 @@ import numpy
 import requests as req 
 import folium
 import openrouteservice
+import math
 
 #ORS-Client Zugang
 client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRmNzExNzZkYmZhMzQ4Njc5OGE3MDEzM2EwMWFiOWE5IiwiaCI6Im11cm11cjY0In0=")
@@ -103,7 +104,7 @@ def place_header(start, ziel):
 
 # Funtion zum Erstellen eines Seitenbalkens
 
-def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed):
+def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed, start, ziel, temp_start, temp_ziel):
     return f"""
     <div style="position: fixed; 
                 top: 180px; left: 10px; width: 260px; height: auto; 
@@ -112,12 +113,14 @@ def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed):
                 z-index:9999; 
                 padding:10px; 
                 overflow:auto;">
-        <h4>Routeninformationen</h4>
-        <p><b>Distanz:</b> {dist_km:.2f} km</p>
-        <p><b>Dauer (ORS):</b> {dauer_ors:.2f} h</p>
-        <p><b>Dauer (eigene Berechnung):</b> {dauer_eigen:.2f} h</p>
-        <p><b>Geschwindigkeit angenommen:</b> {speed:.2f} km/h</p>
+        <h4><b>Routeninformationen</b></h4>
+        <p><b>Distanz:</b> {dist_km:.2f} km </p>
+        <p><b>Dauer (ORS):</b> {dauer_ors:.2f} h </p>
+        <p><b>Geschwindigkeit angenommen:</b> {speed:.2f} km/h </p>
+        <p><b>Dauer (eigene Berechnung):</b> {dauer_eigen:.2f} h </p>
+        <p><b>Temparatur in </b>{start}: {temp_start:.2f} °C </p>
+        <p><b>Temparatur in </b>{ziel}: {temp_ziel:.2f} °C </p>
+        
     </div>
     """
 
-####################################################################################################################################################

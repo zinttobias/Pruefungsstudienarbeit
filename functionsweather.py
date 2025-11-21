@@ -68,3 +68,4 @@ def add_weather_circle(map_obj, coords, temperature, popup_text=""):
         fill_opacity=0.25,
         popup=popup_text
     ).add_to(map_obj)
+
