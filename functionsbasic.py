@@ -1,16 +1,17 @@
+# Import notwendiger Bibliotheken bzw. Packages
+
 import numpy
 import requests as req 
 import folium
 import openrouteservice
 import math
 
-#ORS-Client Zugang
+#ORS-Client Zugangsschlüssel
 client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRmNzExNzZkYmZhMzQ4Njc5OGE3MDEzM2EwMWFiOWE5IiwiaCI6Im11cm11cjY0In0=")
          
 
 ######################################  Allgemeine Funktionsdefinitionen ###########################################
-
-# Funktion zur Abfrage der Routenparameter vom Benutzer
+###################################### Funktion zur Abfrage der Routenparameter vom Benutzer #######################
 
 def routen_abfrage():
     startpunkt = input("Geben Sie den Startpunkt der Route ein:")                               # Eingabe Startpunkt
@@ -39,19 +40,14 @@ def routen_abfrage():
         "Zwischenstopp": zwischenstopp,
         "Durchschnittsgeschwindigkeit": float(v_avg)    # Umwandeln in einen float Typ
     }
-####################################################################################################################################################
-
-
-# Funktion zum Wandeln eines Stadtnamens in Koordinaten
+########################################## Funktion zum Wandeln eines Stadtnamens in Koordinaten #############################
          
 def get_coords(city_name):
     response = client.pelias_search(text=city_name, size=1)         # Anfrage Stadtname mit einem Ergebnis
     coords = response['features'][0]['geometry']['coordinates']     # Erstes Ergebnis von features, Übergabe der Koordinaten
     return coords                                                   # [longitude, latitude] in coords
 
-####################################################################################################################################################
-
-# Klasse zum Platzieren der Folium Marker auf der Karte
+######################################## Klasse zum Platzieren der Folium Marker auf der Karte ###############################
 
 class MarkerPlacingFolium:
     def __init__(self, map_obj):
@@ -81,9 +77,34 @@ class MarkerPlacingFolium:
             icon=folium.Icon(color="red", icon="flag")
         ).add_to(self.our_map)
 
-####################################################################################################################################################
 
-# Funktion zum Erstellen einer Überschrift
+################################# Sportrelevante Daten Leistung, Kalorienverbrauch ###########################################
+
+def power_calories(weight_kg, average_speed_kmh, elevation_gain_m, duration_h, sport_data_wanted = True):
+    if not sport_data_wanted:
+        return None
+    
+    g = 9.81                                                            # Erdbeschleunigung in m/s²
+    average_speed_ms = average_speed_kmh / 3.6                          # Umrechnung km/h in m/s
+    elevation_gain_m_per_s = elevation_gain_m / (duration_h * 3600)     # Höhengewinn pro Sekunde
+
+    P_roll = 0.005 * weight_kg * g * average_speed_ms                   # Rollwiderstandsleistung
+    P_aero = 0.5 * 1.225 * 0.9 * 0.3 * (average_speed_ms ** 3)          # Luftwiderstandsleistung
+    P_pot = weight_kg * g * elevation_gain_m_per_s                      # Steigungsleistung
+
+    P_complete = P_roll + P_aero + P_pot  
+    calories_mechanical = P_complete * duration_h * 60 * 0.01433        # nur die Leistung die aufs Rad geht
+
+    n = 0.25                                                            # Wirkungsgrad des menschlichen Körpers
+
+    calories_burned = calories_mechanical / n
+
+    return {                                           
+        "Gesamtleistung": P_complete,                                   # Gesamtleistung in Watt
+        "Kalorienverbrauch": calories_burned                            # Kalorienverbrauch in kcal  
+    }
+
+########################################## Funktion zum Erstellen einer Überschrift #########################################
 
 def place_header(start, ziel):
     return f"""
@@ -100,16 +121,22 @@ def place_header(start, ziel):
     </div>
     """
 
-####################################################################################################################################################
-
-# Funtion zum Erstellen eines Seitenbalkens
+########################################### Funtion zum Erstellen eines Seitenbalkens ########################################
 
 def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed,
-                   start, ziel, zs, temp_start, temp_ziel, temp_zs, elevation_up, elevation_down):
+                   start, ziel, zs, temp_start, temp_ziel, temp_zs, elevation_up, elevation_down,
+                   sport_data_yes_no, sport_data):
      
     zs_sidebar = ""
     if temp_zs is not None and zs is not None:
         zs_sidebar = f"<p><b>Temperatur in </b>{zs}: {temp_zs:.2f} °C </p>"
+
+    sport_data_sidebar = ""
+    if sport_data_yes_no and sport_data is not None:
+        sport_data_sidebar = (
+        f"<p><b>Leistung:</b> {sport_data['Gesamtleistung']:.2f} W</p>"
+        f"<p><b>Kalorienverbrauch:</b> {sport_data['Kalorienverbrauch']:.2f} kcal</p>"
+    )
     
     
     return f"""
@@ -130,6 +157,7 @@ def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed,
         <p><b>Temparatur in </b>{ziel}: {temp_ziel:.2f} °C </p>
         <p><b>Höhenmeter↑:</b> {elevation_up:.1f} m </p>
         <p><b>Höhenmeter↓:</b> {elevation_down:.1f} m </p>
+                {sport_data_sidebar}
         
     </div>
     """

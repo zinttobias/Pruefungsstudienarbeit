@@ -73,6 +73,19 @@ Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]            
 elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
 elevation_down = route_bike['features'][0]['properties']['descent']             # Höhenmeter Abstieg
 
+############################## Sportrelevante Daten berechnen #######################################################
+
+weight_biker_kg = 75                                    # Diese zwei Werte später als Eingabe abfragen   
+sport_data_yes_no = True                                # ob sportrelevante Daten gewünscht sind
+sport_data = fb.power_calories(weight_biker_kg,
+                                route_v["Durchschnittsgeschwindigkeit"],
+                                elevation_up,
+                                Dauer_h_eigen,
+                                sport_data_yes_no
+                                )
+
+####################################################################################################################
+
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
 lats = [lat for lon, lat, _ in coords_route]
@@ -97,7 +110,9 @@ Sidebar =  fb.place_sidebar(Distanz_km,
                             weather_sidebar["ziel_temp"],
                             weather_sidebar["zs_temp"],
                             elevation_up,
-                            elevation_down)             
+                            elevation_down,
+                            sport_data_yes_no,
+                            sport_data)             
 
 our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
