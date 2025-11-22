@@ -104,7 +104,14 @@ def place_header(start, ziel):
 
 # Funtion zum Erstellen eines Seitenbalkens
 
-def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed, start, ziel, temp_start, temp_ziel, elevation_up, elevation_down):
+def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed,
+                   start, ziel, zs, temp_start, temp_ziel, temp_zs, elevation_up, elevation_down):
+     
+    zs_sidebar = ""
+    if temp_zs is not None and zs is not None:
+        zs_sidebar = f"<p><b>Temperatur in </b>{zs}: {temp_zs:.2f} °C </p>"
+    
+    
     return f"""
     <div style="position: fixed; 
                 top: 180px; left: 10px; width: 260px; height: auto; 
@@ -119,10 +126,13 @@ def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed, start, ziel, temp_star
         <p><b>Geschwindigkeit angenommen:</b> {speed:.2f} km/h </p>
         <p><b>Dauer (eigene Berechnung):</b> {dauer_eigen:.2f} h </p>
         <p><b>Temparatur in </b>{start}: {temp_start:.2f} °C </p>
+                {zs_sidebar}
         <p><b>Temparatur in </b>{ziel}: {temp_ziel:.2f} °C </p>
         <p><b>Höhenmeter↑:</b> {elevation_up:.1f} m </p>
         <p><b>Höhenmeter↓:</b> {elevation_down:.1f} m </p>
         
     </div>
     """
+#####################################################################################################################################################
 
+# nächste Funktion hier platzieren

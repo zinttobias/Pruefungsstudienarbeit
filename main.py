@@ -8,7 +8,7 @@ from functionsweather import *
 from folium.plugins import MiniMap, MeasureControl
 
 
-######################################################################################################################
+##################################### Eingabe der Route und Verarbeitung ###############################################
 
 route_v = fb.routen_abfrage()                                   # Schreiben der Routenabfrage in route_v Dictionary
 
@@ -24,6 +24,8 @@ if route_v["Zwischenstopp"] is not None:                        # Wenn Zwischens
 
 coords.append(ziel)
 
+############################### ORS-Route berechnen und Folium Karte erstellen #######################################
+
 # Route mit dem Fahrrad berechnen
 route_bike = client.directions(coords, elevation = True, profile='cycling-regular', format='geojson')
 
@@ -32,31 +34,19 @@ geometry = route_bike['features'][0]['geometry']
 coords_route = geometry['coordinates'] 
 
 #Start und Zielpunkt definieren
-destination = ziel                            #Zielkoordinaten       
+destination = ziel                                                     #Zielkoordinaten       
 
-#Map-Anzeigebereich
+#Map-Anzeigebereich von our_map 
 our_map = folium.Map(location=(start[1], start[0]), zoom_start=12)     #[latitude, longitude]
 
-############################################### Wetter ##############################################################
 
-start_weather = fw.getWeather(start[1], start[0])      # Wetter am Startpunkt abrufen
-ziel_weather  = fw.getWeather(ziel[1], ziel[0])        # Wetter am Zielpunkt abrufen
+############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
 
-add_weather_circle(                                     # Temperaturkreis am Startpunkt
-    our_map,
-    start,
-    start_weather["temperatur"],
-    popup_text=f"Temperatur: {start_weather['temperatur']} °C"
-)
+weather_sidebar = fw.include_weather_to_folium(our_map, start, ziel, zs_coords)
+# Alle Funktionne dazu in functionsweather.py
 
-add_weather_circle(                                     # Temperaturkreis am Zielpunkt   
-    our_map,
-    ziel,
-    ziel_weather["temperatur"],
-    popup_text=f"Temperatur: {ziel_weather['temperatur']} °C"
-)
 
-# Platzieren der Folium Marker auf der Karte
+############################### Platzieren der Folium Marker auf der Karte ##########################################
 place_marker = fb.MarkerPlacingFolium(our_map)
 
 place_marker.start(start, route_v["Startpunkt"])
@@ -67,7 +57,8 @@ if zs_coords is not None:
 place_marker.ziel(ziel, route_v["Zielpunkt"])
 
 
-# ORS-Route hinzufügen
+############################################### ORS-Route hinzufügen ###############################################
+
 folium.PolyLine([(lat, lon) for lon, lat, _ in coords_route],
                color="red", weight=5, opacity=0.8).add_to(our_map)
 
@@ -80,7 +71,7 @@ Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]            
 
 #Höhenmeter aus der Route extrahieren
 elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
-elevation_down = route_bike['features'][0]['properties']['descent']              # Höhenmeter Abstieg
+elevation_down = route_bike['features'][0]['properties']['descent']             # Höhenmeter Abstieg
 
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
@@ -101,20 +92,20 @@ Sidebar =  fb.place_sidebar(Distanz_km,
                             route_v["Durchschnittsgeschwindigkeit"],
                             route_v["Startpunkt"],
                             route_v["Zielpunkt"],
-                            start_weather["temperatur"],
-                            ziel_weather["temperatur"],
+                            route_v["Zwischenstopp"],
+                            weather_sidebar["start_temp"],          
+                            weather_sidebar["ziel_temp"],
+                            weather_sidebar["zs_temp"],
                             elevation_up,
                             elevation_down)             
 
 our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
 
-#######################################################################################################################
+############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
 MiniMap().add_to(our_map)                                         # Hinzufügen einer MiniMap
 MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
-
-
 
 our_map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
 
