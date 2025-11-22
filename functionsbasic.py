@@ -163,4 +163,6 @@ def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed,
     """
 #####################################################################################################################################################
 
-# nächste Funktion hier platzieren
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# Hier drunter keine Funktionsdefinitionen mehr einfügen !!!!!!!!!!!!!!!
+# Ansonsten werden die Informationen im schlimmsten Fall nicht mehr in Headline und Sidebar angezeigt !!!!

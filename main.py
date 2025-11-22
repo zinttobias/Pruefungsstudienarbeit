@@ -1,5 +1,10 @@
-# Pruefungsstudienarbeit Programmieren 3 WS 25/26
-# Gruppenmitglieder: Alexander Hollenrieder, Thilo Fuhrmann, Dominic Schüll, Tobias Zint
+"""
+--------------------------------------------------------------------------------------------
+Pruefungsstudienarbeit Programmieren 3 WS 25/26
+Gruppenmitglieder: Alexander Hollenrieder, Thilo Fuhrmann, Dominic Schüll, Tobias Zint
+Erstellungsdatum: 10.11.2025
+--------------------------------------------------------------------------------------------
+"""
 
 import functionsbasic as fb
 from functionsbasic import *
@@ -43,8 +48,6 @@ our_map = folium.Map(location=(start[1], start[0]), zoom_start=12)     #[latitud
 ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
 
 weather_sidebar = fw.include_weather_to_folium(our_map, start, ziel, zs_coords)
-# Alle Funktionne dazu in functionsweather.py
-
 
 ############################### Platzieren der Folium Marker auf der Karte ##########################################
 place_marker = fb.MarkerPlacingFolium(our_map)
@@ -62,14 +65,16 @@ place_marker.ziel(ziel, route_v["Zielpunkt"])
 folium.PolyLine([(lat, lon) for lon, lat, _ in coords_route],
                color="red", weight=5, opacity=0.8).add_to(our_map)
 
-# Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten
+################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
+
 Distanz_m = route_bike['features'][0]['properties']['summary']['distance']      # Distanz in Meter
 Dauer_s_ORS  = route_bike['features'][0]['properties']['summary']['duration']   # Zeitdauer in Sekunden
 Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
 Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
 Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]            # Dauer in Stunden
 
-#Höhenmeter aus der Route extrahieren
+############################### Höhenmeter aus der Route extrahieren ###############################################
+
 elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
 elevation_down = route_bike['features'][0]['properties']['descent']             # Höhenmeter Abstieg
 
@@ -84,7 +89,7 @@ sport_data = fb.power_calories(weight_biker_kg,
                                 sport_data_yes_no
                                 )
 
-####################################################################################################################
+####################################### Kartenanpassungen ##########################################################
 
 # Kartenzoom auf die Route anpassen
 # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
@@ -96,7 +101,7 @@ bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 # Map auf die Bounds zoomen
 our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
 
-#################################### Überschrift und Sidebar #########################################################
+#################################### Überschrift und Sidebar ########################################################
 
 Headline = fb.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])              
 Sidebar =  fb.place_sidebar(Distanz_km, 
