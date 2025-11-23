@@ -11,25 +11,49 @@ from functionsbasic import *
 import functionsweather as fw
 from functionsweather import *
 from folium.plugins import MiniMap, MeasureControl
+import streamlit as st
+import webbrowser
+import subprocess
+
+st.title("Fahrradroute")
+# Spalten erzeugen
+col1, col2, col3, col4 = st.columns(4)
+
+# Spalte 1
+with col1:
+    start_name = st.text_input("Startpunkt")
+
+# Spalte 2
+with col2:
+    ziel_name = st.text_input("Zielpunkt")
+
+# Spalte 3
+with col3:
+    avg_speed = float(st.text_input("Geschwindigkeit"))
+
+# Spalte 4
+with col4:
+    calc_route = st.button("Route berechnen")
+
 
 
 ##################################### Eingabe der Route und Verarbeitung ###############################################
 
-route_v = fb.routen_abfrage()                                   # Schreiben der Routenabfrage in route_v Dictionary
-
-start = fb.get_coords(route_v["Startpunkt"])                    # Startkoordinaten für die Route abrufen
-ziel =  fb.get_coords(route_v["Zielpunkt"])                     # Zielkoordinaten für die Route abrufen
+start_coords = fb.get_coords(start_name)                    # Startkoordinaten für die Route abrufen
+ziel_coords =  fb.get_coords(ziel_name)                     # Zielkoordinaten für die Route abrufen
 zs_coords = None
 
-coords = [start]                                                # Liste mit start als erstem Element
+coords = [start_coords]                                                # Liste mit start als erstem Element
 
-if route_v["Zwischenstopp"] is not None:                        # Wenn Zwischenstopp gefragt
-    zs_coords = fb.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
-    coords.append(zs_coords)
+## route_v["Zwischenstopp"] is not None:                        # Wenn Zwischenstopp gefragt
+##    zs_coords = fb.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
+##    coords.append(zs_coords)
 
-coords.append(ziel)
+coords.append(ziel_coords)
 
 ############################### ORS-Route berechnen und Folium Karte erstellen #######################################
+
+st.title("Fahrradroute")
 
 # Route mit dem Fahrrad berechnen
 route_bike = client.directions(coords, elevation = True, profile='cycling-regular', format='geojson')
@@ -39,25 +63,25 @@ geometry = route_bike['features'][0]['geometry']
 coords_route = geometry['coordinates'] 
 
 #Start und Zielpunkt definieren
-destination = ziel                                                     #Zielkoordinaten       
+destination = ziel_coords                                                    #Zielkoordinaten       
 
 #Map-Anzeigebereich von our_map 
-our_map = folium.Map(location=(start[1], start[0]), zoom_start=12)     #[latitude, longitude]
+our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
 
 
 ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
 
-weather_sidebar = fw.include_weather_to_folium(our_map, start, ziel, zs_coords)
+weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, ziel_coords, zs_coords)
 
 ############################### Platzieren der Folium Marker auf der Karte ##########################################
 place_marker = fb.MarkerPlacingFolium(our_map)
 
-place_marker.start(start, route_v["Startpunkt"])
+place_marker.start(start_coords, start_name)
 
-if zs_coords is not None:
-    place_marker.zwischenstopp(zs_coords, route_v["Zwischenstopp"])
+##if zs_coords is not None:
+##    place_marker.zwischenstopp(zs_coords, route_v["Zwischenstopp"])
 
-place_marker.ziel(ziel, route_v["Zielpunkt"])
+place_marker.ziel(ziel_coords, ziel_name)
 
 
 ############################################### ORS-Route hinzufügen ###############################################
@@ -71,7 +95,7 @@ Distanz_m = route_bike['features'][0]['properties']['summary']['distance']      
 Dauer_s_ORS  = route_bike['features'][0]['properties']['summary']['duration']   # Zeitdauer in Sekunden
 Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
 Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
-Dauer_h_eigen = Distanz_km / route_v["Durchschnittsgeschwindigkeit"]            # Dauer in Stunden
+Dauer_h_eigen = Distanz_km / 3 ##route_v["Durchschnittsgeschwindigkeit"]            # Dauer in Stunden
 
 ############################### Höhenmeter aus der Route extrahieren ###############################################
 
@@ -83,7 +107,7 @@ elevation_down = route_bike['features'][0]['properties']['descent']             
 weight_biker_kg = 75                                    # Diese zwei Werte später als Eingabe abfragen   
 sport_data_yes_no = True                                # ob sportrelevante Daten gewünscht sind
 sport_data = fb.power_calories(weight_biker_kg,
-                                route_v["Durchschnittsgeschwindigkeit"],
+                                avg_speed,
                                 elevation_up,
                                 Dauer_h_eigen,
                                 sport_data_yes_no
@@ -103,10 +127,10 @@ our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 8
 
 #################################### Überschrift und Sidebar ########################################################
 
-Headline = fb.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])   
+Headline = fb.place_header(start_name, ziel_name)   
 
-Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, route_v["Durchschnittsgeschwindigkeit"],
-                            route_v["Startpunkt"], route_v["Zielpunkt"], route_v["Zwischenstopp"],
+Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, avg_speed,
+                            start_name, ziel_name, ziel_name, ## route_v["Zwischenstopp"],  
                             weather_sidebar["start_temp"], weather_sidebar["start_wind_speed"], weather_sidebar["start_wind_direction"],         
                             weather_sidebar["ziel_temp"], weather_sidebar["ziel_wind_speed"], weather_sidebar["ziel_wind_direction"],
                             weather_sidebar["zs_temp"], weather_sidebar["zs_wind_speed"], weather_sidebar["zs_wind_direction"],
@@ -123,5 +147,6 @@ our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML
 MiniMap().add_to(our_map)                                         # Hinzufügen einer MiniMap
 MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
 
-our_map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
+if calc_route:
+    our_map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
 

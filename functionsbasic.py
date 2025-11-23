@@ -77,7 +77,6 @@ class MarkerPlacingFolium:
             icon=folium.Icon(color="red", icon="flag")
         ).add_to(self.our_map)
 
-
 ################################# Sportrelevante Daten Leistung, Kalorienverbrauch ###########################################
 
 def power_calories(weight_kg, average_speed_kmh, elevation_gain_m, duration_h, sport_data_wanted = True):
