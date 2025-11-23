@@ -12,6 +12,7 @@ import functionsweather as fw
 from functionsweather import *
 from folium.plugins import MiniMap, MeasureControl
 import streamlit as st
+import streamlit.components.v1 as components
 import webbrowser
 
 st.title("Fahrradroute")
@@ -69,15 +70,15 @@ if start_input and dest_input and speed_input:
     destination = dest_coords                                                    #Zielkoordinaten       
 
     #Map-Anzeigebereich von our_map 
-    our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
+    map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
 
 
     ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
 
-    weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, dest_coords, zs_coords)
+    weather_sidebar = fw.include_weather_to_folium(map, start_coords, dest_coords, zs_coords)
 
     ############################### Platzieren der Folium Marker auf der Karte ##########################################
-    place_marker = fb.MarkerPlacingFolium(our_map)
+    place_marker = fb.MarkerPlacingFolium(map)
 
     place_marker.start(start_coords, start_name)
 
@@ -90,7 +91,7 @@ if start_input and dest_input and speed_input:
     ############################################### ORS-Route hinzufügen ###############################################
 
     folium.PolyLine([(lat, lon) for lon, lat, _ in coords_route],
-                color="red", weight=5, opacity=0.8).add_to(our_map)
+                color="red", weight=5, opacity=0.8).add_to(map)
 
     ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
 
@@ -126,7 +127,7 @@ if start_input and dest_input and speed_input:
     bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 
     # Map auf die Bounds zoomen
-    our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
+    map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
 
     #################################### Überschrift und Sidebar ########################################################
 
@@ -142,14 +143,17 @@ if start_input and dest_input and speed_input:
                                 sport_data_yes_no, sport_data
                                 )             
 
-    our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
-    our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
+    map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
+    map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
 
     ############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
-    MiniMap().add_to(our_map)                                         # Hinzufügen einer MiniMap
-    MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
+    MiniMap().add_to(map)                                         # Hinzufügen einer MiniMap
+    MeasureControl().add_to(map)                                  # Hinzufügen eines Messwerkzeugs  
 
     if calc_route:
-        our_map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
+        map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
 
+        # Karte als HTML rendern
+        html_data = map._repr_html_()
+        components.html(html_data, height=1200, width=1200)
