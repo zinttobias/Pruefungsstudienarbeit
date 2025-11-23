@@ -103,21 +103,17 @@ our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 8
 
 #################################### Überschrift und Sidebar ########################################################
 
-Headline = fb.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])              
-Sidebar =  fb.place_sidebar(Distanz_km, 
-                            Dauer_h_ORS, 
-                            Dauer_h_eigen, 
-                            route_v["Durchschnittsgeschwindigkeit"],
-                            route_v["Startpunkt"],
-                            route_v["Zielpunkt"],
-                            route_v["Zwischenstopp"],
-                            weather_sidebar["start_temp"],          
-                            weather_sidebar["ziel_temp"],
-                            weather_sidebar["zs_temp"],
-                            elevation_up,
-                            elevation_down,
-                            sport_data_yes_no,
-                            sport_data)             
+Headline = fb.place_header(route_v["Startpunkt"], route_v["Zielpunkt"])   
+
+Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, route_v["Durchschnittsgeschwindigkeit"],
+                            route_v["Startpunkt"], route_v["Zielpunkt"], route_v["Zwischenstopp"],
+                            weather_sidebar["start_temp"], weather_sidebar["start_wind_speed"], weather_sidebar["start_wind_direction"],         
+                            weather_sidebar["ziel_temp"], weather_sidebar["ziel_wind_speed"], weather_sidebar["ziel_wind_direction"],
+                            weather_sidebar["zs_temp"], weather_sidebar["zs_wind_speed"], weather_sidebar["zs_wind_direction"],
+                            weather_sidebar["start_weather_text"], weather_sidebar["ziel_weather_text"], weather_sidebar["zs_weather_text"],
+                            elevation_up, elevation_down,
+                            sport_data_yes_no, sport_data
+                            )             
 
 our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen

@@ -123,21 +123,29 @@ def place_header(start, ziel):
 
 ########################################### Funtion zum Erstellen eines Seitenbalkens ########################################
 
-def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed,
-                   start, ziel, zs, temp_start, temp_ziel, temp_zs, elevation_up, elevation_down,
-                   sport_data_yes_no, sport_data):
+def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed, start, ziel, zs,
+                    temp_start, windspeed_start, winddirection_start, 
+                        temp_ziel, windspeed_ziel, winddirection_ziel, 
+                            temp_zs, windspeed_zs, winddirection_zs,
+                                weather_desc_start, weather_desc_ziel, weather_desc_zs,
+                                elevation_up, elevation_down, sport_data_yes_no, sport_data):
      
     zs_sidebar = ""
     if temp_zs is not None and zs is not None:
-        zs_sidebar = f"<p><b>Temperatur in </b>{zs}: {temp_zs:.2f} °C </p>"
+        zs_sidebar = (
+        f"<p><b>Wetter in {zs}</b></p>"
+        f"<p>Beschreibung: {weather_desc_zs}</p>"
+        f"<p>Temperatur: {temp_zs:.2f} °C</p>"
+        f"<p>Windgeschwindigkeit: {windspeed_zs:.2f} km/h</p>"
+        f"<p>-------------------------------<p>"
+        )
 
     sport_data_sidebar = ""
     if sport_data_yes_no and sport_data is not None:
         sport_data_sidebar = (
-        f"<p><b>Leistung:</b> {sport_data['Gesamtleistung']:.2f} W</p>"
-        f"<p><b>Kalorienverbrauch:</b> {sport_data['Kalorienverbrauch']:.2f} kcal</p>"
-    )
-    
+            f"<p><b>Leistung:</b> {sport_data['Gesamtleistung']:.2f} W</p>"
+            f"<p><b>Kalorienverbrauch:</b> {sport_data['Kalorienverbrauch']:.2f} kcal</p>"
+        )
     
     return f"""
     <div style="position: fixed; 
@@ -147,20 +155,86 @@ def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed,
                 z-index:9999; 
                 padding:10px; 
                 overflow:auto;">
+                                            
+        <style>
+        .accordion-item {{                         
+            margin-bottom: 8px;
+            border-bottom: 1px solid #ccc;
+        }}
+        .accordion-label {{
+            display: block;
+            padding: 8px;
+            background: #eee;
+            cursor: pointer;
+            font-weight: bold;
+        }}
+        .accordion-content {{
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.25s ease-out;
+            padding-left: 5px;
+        }}
+        .accordion-item input[type="checkbox"] {{
+            display: none;
+        }}
+        .accordion-item input:checked ~ .accordion-content {{
+            max-height: 500px;
+            padding: 8px 5px;
+        }}
+        </style>
+
         <h4><b>Routeninformationen</b></h4>
-        <p><b>Distanz:</b> {dist_km:.2f} km </p>
-        <p><b>Dauer (ORS):</b> {dauer_ors:.2f} h </p>
-        <p><b>Geschwindigkeit angenommen:</b> {speed:.2f} km/h </p>
-        <p><b>Dauer (eigene Berechnung):</b> {dauer_eigen:.2f} h </p>
-        <p><b>Temparatur in </b>{start}: {temp_start:.2f} °C </p>
-                {zs_sidebar}
-        <p><b>Temparatur in </b>{ziel}: {temp_ziel:.2f} °C </p>
-        <p><b>Höhenmeter↑:</b> {elevation_up:.1f} m </p>
-        <p><b>Höhenmeter↓:</b> {elevation_down:.1f} m </p>
-                {sport_data_sidebar}
-        
+
+        <div class="accordion">
+
+            <!-- Routeninfo -->
+            <div class="accordion-item">
+                <input type="checkbox" id="acc-route" checked>
+                <label class="accordion-label" for="acc-route">Routeninfo</label>
+                <div class="accordion-content">
+                    <p><b>Distanz:</b> {dist_km:.2f} km </p>
+                    <p><b>Dauer (ORS):</b> {dauer_ors:.2f} h </p>
+                    <p><b>Geschwindigkeit angenommen:</b> {speed:.2f} km/h </p>
+                    <p><b>Dauer (eigene Berechnung):</b> {dauer_eigen:.2f} h </p>
+                    <p><b>Höhenmeter↑:</b> {elevation_up:.1f} m </p>
+                    <p><b>Höhenmeter↓:</b> {elevation_down:.1f} m </p>
+                </div>
+            </div>
+
+            <!-- Wetter -->
+            <div class="accordion-item">
+                <input type="checkbox" id="acc-weather" checked>
+                <label class="accordion-label" for="acc-weather">Wetter</label>
+                <div class="accordion-content">
+                    <p><b>Wetter in {start} </b></p>
+                    <p>Beschreibung: {weather_desc_start} </p>
+                    <p>Temperatur: {temp_start:.2f} °C </p>
+                    <p>Windgeschwindigkeit: {windspeed_start:.2f} km/h </p>
+                    <p>-------------------------------</p>
+
+                    {zs_sidebar}
+
+                    <p><b>Wetter in {ziel} </b></p>
+                    <p>Beschreibung: {weather_desc_ziel} </p>
+                    <p>Temperatur: {temp_ziel:.2f} °C </p>
+                    <p>Windgeschwindigkeit: {windspeed_ziel:.2f} km/h </p>
+                    
+                </div>
+            </div>
+
+            <!-- Sportdaten -->
+            <div class="accordion-item">
+                <input type="checkbox" id="acc-sport">
+                <label class="accordion-label" for="acc-sport">Sportdaten</label>
+                <div class="accordion-content">
+                    {sport_data_sidebar}
+                </div>
+            </div>
+
+        </div>
     </div>
     """
+
 #####################################################################################################################################################
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
