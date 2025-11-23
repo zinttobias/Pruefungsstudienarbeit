@@ -11,35 +11,7 @@ client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyND
          
 
 ######################################  Allgemeine Funktionsdefinitionen ###########################################
-###################################### Funktion zur Abfrage der Routenparameter vom Benutzer #######################
 
-def routen_abfrage():
-    startpunkt = input("Geben Sie den Startpunkt der Route ein:")                               # Eingabe Startpunkt
-    while not startpunkt.strip():
-        startpunkt = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
-
-    zielpunkt = input("Geben Sie den Zielpunkt der Route ein:")                                 # Eingabe Zielpunkt
-    while not zielpunkt.strip():
-        zielpunkt = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
-
-    zwischenstopp = None                                                                        # Abfrage auf Zwischenstopp                   
-    auswahl_zs = input("Möchten Sie einen Zwischenstopp hinzufügen? (ja/nein): ").lower()
-
-    if auswahl_zs == "ja":
-        zwischenstopp = input("Geben Sie den Zwischenstopp der Route ein:")
-        while not zwischenstopp.strip():
-            zwischenstopp = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
-
-    v_avg = input("Vorraussichtliche Durchschnittsgeschwindigkeit in km/h: ")                  # Eingabe Durchschnittsgeschwindigkeit
-    while not v_avg.strip():
-        v_avg = input("Eingabe darf nicht leer sein. Bitte erneut versuchen: ")
-
-    return {                                            # Rückgabe als Dictionary(Benutzen: route_v["Startpunkt"])
-        "Startpunkt": startpunkt,
-        "Zielpunkt": zielpunkt,
-        "Zwischenstopp": zwischenstopp,
-        "Durchschnittsgeschwindigkeit": float(v_avg)    # Umwandeln in einen float Typ
-    }
 ########################################## Funktion zum Wandeln eines Stadtnamens in Koordinaten #############################
          
 def get_coords(city_name):
