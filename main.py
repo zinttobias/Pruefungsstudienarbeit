@@ -13,7 +13,6 @@ from functionsweather import *
 from folium.plugins import MiniMap, MeasureControl
 import streamlit as st
 import webbrowser
-import subprocess
 
 st.title("Fahrradroute")
 # Spalten erzeugen
@@ -21,132 +20,136 @@ col1, col2, col3, col4 = st.columns(4)
 
 # Spalte 1
 with col1:
-    start_name = st.text_input("Startpunkt")
+    start_input = st.text_input("Startpunkt", value = "München")
+    if start_input:
+        start_name = start_input
 
 # Spalte 2
 with col2:
-    ziel_name = st.text_input("Zielpunkt")
+    dest_input = st.text_input("Zielpunkt", value = "Augsburg")
+    if dest_input:
+        dest_name = dest_input
 
 # Spalte 3
 with col3:
-    avg_speed = float(st.text_input("Geschwindigkeit"))
+    speed_input = st.text_input("Geschwindigkeit", value = "0")
+    if speed_input:
+        avg_speed = float(speed_input)
 
 # Spalte 4
 with col4:
     calc_route = st.button("Route berechnen")
 
+if start_input and dest_input and speed_input: 
+
+    ##################################### Eingabe der Route und Verarbeitung ###############################################
+
+    start_coords = fb.get_coords(start_name)                    # Startkoordinaten für die Route abrufen
+    dest_coords =  fb.get_coords(dest_name)                     # Zielkoordinaten für die Route abrufen
+    zs_coords = None
+
+    coords = [start_coords]                                                # Liste mit start als erstem Element
+
+    ## route_v["Zwischenstopp"] is not None:                        # Wenn Zwischenstopp gefragt
+    ##    zs_coords = fb.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
+    ##    coords.append(zs_coords)
+
+    coords.append(dest_coords)
+
+    ############################### ORS-Route berechnen und Folium Karte erstellen #######################################
+
+    # Route mit dem Fahrrad berechnen
+    route_bike = client.directions(coords, elevation = True, profile='cycling-regular', format='geojson')
+
+    # Geometrie extrahieren und decodieren
+    geometry = route_bike['features'][0]['geometry']
+    coords_route = geometry['coordinates'] 
+
+    #Start und Zielpunkt definieren
+    destination = dest_coords                                                    #Zielkoordinaten       
+
+    #Map-Anzeigebereich von our_map 
+    our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
 
 
-##################################### Eingabe der Route und Verarbeitung ###############################################
+    ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
 
-start_coords = fb.get_coords(start_name)                    # Startkoordinaten für die Route abrufen
-ziel_coords =  fb.get_coords(ziel_name)                     # Zielkoordinaten für die Route abrufen
-zs_coords = None
+    weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, dest_coords, zs_coords)
 
-coords = [start_coords]                                                # Liste mit start als erstem Element
+    ############################### Platzieren der Folium Marker auf der Karte ##########################################
+    place_marker = fb.MarkerPlacingFolium(our_map)
 
-## route_v["Zwischenstopp"] is not None:                        # Wenn Zwischenstopp gefragt
-##    zs_coords = fb.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
-##    coords.append(zs_coords)
+    place_marker.start(start_coords, start_name)
 
-coords.append(ziel_coords)
+    ##if zs_coords is not None:
+    ##    place_marker.zwischenstopp(zs_coords, route_v["Zwischenstopp"])
 
-############################### ORS-Route berechnen und Folium Karte erstellen #######################################
-
-st.title("Fahrradroute")
-
-# Route mit dem Fahrrad berechnen
-route_bike = client.directions(coords, elevation = True, profile='cycling-regular', format='geojson')
-
-# Geometrie extrahieren und decodieren
-geometry = route_bike['features'][0]['geometry']
-coords_route = geometry['coordinates'] 
-
-#Start und Zielpunkt definieren
-destination = ziel_coords                                                    #Zielkoordinaten       
-
-#Map-Anzeigebereich von our_map 
-our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
+    place_marker.ziel(dest_coords, dest_name)
 
 
-############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
+    ############################################### ORS-Route hinzufügen ###############################################
 
-weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, ziel_coords, zs_coords)
+    folium.PolyLine([(lat, lon) for lon, lat, _ in coords_route],
+                color="red", weight=5, opacity=0.8).add_to(our_map)
 
-############################### Platzieren der Folium Marker auf der Karte ##########################################
-place_marker = fb.MarkerPlacingFolium(our_map)
+    ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
 
-place_marker.start(start_coords, start_name)
+    Distanz_m = route_bike['features'][0]['properties']['summary']['distance']      # Distanz in Meter
+    Dauer_s_ORS  = route_bike['features'][0]['properties']['summary']['duration']   # Zeitdauer in Sekunden
+    Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
+    Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
+    Dauer_h_eigen = Distanz_km / 3 ##route_v["Durchschnittsgeschwindigkeit"]            # Dauer in Stunden
 
-##if zs_coords is not None:
-##    place_marker.zwischenstopp(zs_coords, route_v["Zwischenstopp"])
+    ############################### Höhenmeter aus der Route extrahieren ###############################################
 
-place_marker.ziel(ziel_coords, ziel_name)
+    elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
+    elevation_down = route_bike['features'][0]['properties']['descent']             # Höhenmeter Abstieg
 
+    ############################## Sportrelevante Daten berechnen #######################################################
 
-############################################### ORS-Route hinzufügen ###############################################
+    weight_biker_kg = 75                                    # Diese zwei Werte später als Eingabe abfragen   
+    sport_data_yes_no = True                                # ob sportrelevante Daten gewünscht sind
+    sport_data = fb.power_calories(weight_biker_kg,
+                                    avg_speed,
+                                    elevation_up,
+                                    Dauer_h_eigen,
+                                    sport_data_yes_no
+                                    )
 
-folium.PolyLine([(lat, lon) for lon, lat, _ in coords_route],
-               color="red", weight=5, opacity=0.8).add_to(our_map)
+    ####################################### Kartenanpassungen ##########################################################
 
-################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
+    # Kartenzoom auf die Route anpassen
+    # Bounding Box Minimal- und Maximalwerte aus der Route berechnen
+    lats = [lat for lon, lat, _ in coords_route]
+    lons = [lon for lon, lat, _ in coords_route]                           
 
-Distanz_m = route_bike['features'][0]['properties']['summary']['distance']      # Distanz in Meter
-Dauer_s_ORS  = route_bike['features'][0]['properties']['summary']['duration']   # Zeitdauer in Sekunden
-Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
-Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
-Dauer_h_eigen = Distanz_km / 3 ##route_v["Durchschnittsgeschwindigkeit"]            # Dauer in Stunden
+    bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 
-############################### Höhenmeter aus der Route extrahieren ###############################################
+    # Map auf die Bounds zoomen
+    our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
 
-elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
-elevation_down = route_bike['features'][0]['properties']['descent']             # Höhenmeter Abstieg
+    #################################### Überschrift und Sidebar ########################################################
 
-############################## Sportrelevante Daten berechnen #######################################################
+    Headline = fb.place_header(start_name, dest_name)   
 
-weight_biker_kg = 75                                    # Diese zwei Werte später als Eingabe abfragen   
-sport_data_yes_no = True                                # ob sportrelevante Daten gewünscht sind
-sport_data = fb.power_calories(weight_biker_kg,
-                                avg_speed,
-                                elevation_up,
-                                Dauer_h_eigen,
-                                sport_data_yes_no
-                                )
+    Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, avg_speed,
+                                start_name, dest_name, dest_name, ## route_v["Zwischenstopp"],  
+                                weather_sidebar["start_temp"], weather_sidebar["start_wind_speed"], weather_sidebar["start_wind_direction"],         
+                                weather_sidebar["ziel_temp"], weather_sidebar["ziel_wind_speed"], weather_sidebar["ziel_wind_direction"],
+                                weather_sidebar["zs_temp"], weather_sidebar["zs_wind_speed"], weather_sidebar["zs_wind_direction"],
+                                weather_sidebar["start_weather_text"], weather_sidebar["ziel_weather_text"], weather_sidebar["zs_weather_text"],
+                                elevation_up, elevation_down,
+                                sport_data_yes_no, sport_data
+                                )             
 
-####################################### Kartenanpassungen ##########################################################
+    our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
+    our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
 
-# Kartenzoom auf die Route anpassen
-# Bounding Box Minimal- und Maximalwerte aus der Route berechnen
-lats = [lat for lon, lat, _ in coords_route]
-lons = [lon for lon, lat, _ in coords_route]                           
+    ############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
-bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
+    MiniMap().add_to(our_map)                                         # Hinzufügen einer MiniMap
+    MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
 
-# Map auf die Bounds zoomen
-our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
-
-#################################### Überschrift und Sidebar ########################################################
-
-Headline = fb.place_header(start_name, ziel_name)   
-
-Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, avg_speed,
-                            start_name, ziel_name, ziel_name, ## route_v["Zwischenstopp"],  
-                            weather_sidebar["start_temp"], weather_sidebar["start_wind_speed"], weather_sidebar["start_wind_direction"],         
-                            weather_sidebar["ziel_temp"], weather_sidebar["ziel_wind_speed"], weather_sidebar["ziel_wind_direction"],
-                            weather_sidebar["zs_temp"], weather_sidebar["zs_wind_speed"], weather_sidebar["zs_wind_direction"],
-                            weather_sidebar["start_weather_text"], weather_sidebar["ziel_weather_text"], weather_sidebar["zs_weather_text"],
-                            elevation_up, elevation_down,
-                            sport_data_yes_no, sport_data
-                            )             
-
-our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
-our_map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
-
-############################### Hinzufügen von Features und Abspeichern der Karte ##################################
-
-MiniMap().add_to(our_map)                                         # Hinzufügen einer MiniMap
-MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
-
-if calc_route:
-    our_map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
+    if calc_route:
+        our_map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
 
