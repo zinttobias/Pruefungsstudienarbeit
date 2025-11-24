@@ -13,33 +13,44 @@ from functionsweather import *
 from folium.plugins import MiniMap, MeasureControl
 import streamlit as st
 import streamlit.components.v1 as components
-import webbrowser
+import subprocess
+import sys
+import os
 
-st.title("Fahrradroute")
-# Spalten erzeugen
-col1, col2, col3, col4 = st.columns(4)
 
-# Spalte 1
-with col1:
+##################################### Streamlit ###########################################################
+
+# Anpassungen
+st.title("Fahrradroute")                                                # Titel
+col1, col2, col3, col4 = st.columns(4)                                  # Spalten erzeugen
+
+with col1:                                                              # Spalte 1
     start_input = st.text_input("Startpunkt", value = "München")
     if start_input:
         start_name = start_input
 
-# Spalte 2
-with col2:
+with col2:                                                              # Spalte 2
     dest_input = st.text_input("Zielpunkt", value = "Augsburg")
     if dest_input:
         dest_name = dest_input
 
-# Spalte 3
-with col3:
-    speed_input = st.text_input("Geschwindigkeit", value = "0")
+with col3:                                                              # Spalte 3
+    speed_input = st.text_input("Geschwindigkeit", value = "20")
     if speed_input:
         avg_speed = float(speed_input)
 
-# Spalte 4
-with col4:
+with col4:                                                              # Spalte 4
     calc_route = st.button("Route berechnen")
+
+# Autostart Streamlit
+app_file = "main.py"
+app_path = os.path.join(os.path.dirname(__file__), app_file)
+
+
+if not os.environ.get("STREAMLIT_RUNNING"):
+    os.environ.get("STREAMLIT_RUNNING") = "true"
+    cmd = [sys.executable, "-m", "streamlit", "run", app_path]
+    subprocess.run(cmd)
 
 if start_input and dest_input and speed_input: 
 
