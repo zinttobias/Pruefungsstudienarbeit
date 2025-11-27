@@ -20,38 +20,49 @@ import webbrowser
 
 ##################################### Streamlit ###########################################################
 
-# Anpassungen
-st.title("Fahrradroute")                                                        # Titel
-col1, col2, col3, col4, col5, col6 = st.columns(6)                              # Spalten erzeugen
+st.title("Fahrradroute 🚲 🗺️")                                                # Titel
 
-with col1:                                                                      # Spalte 1
-    start_input = st.text_input("Startpunkt", value = "München")
+col1, col2, col3 = st.columns([1, 1, 1])                                # Reihe 1
+
+with col1:  
+    start_input = st.text_input("Startpunkt 📍", value="München")
     if start_input:
         start_name = start_input
 
 with col2:
-    zs_input = st.text_input("Zwischenpunkt", value = None)
+    zs_input = st.text_input("Zwischenpunkt 🔸", value=None)
     if zs_input:
         zs_name = zs_input
     else:
         zs_name = None
 
-with col3:                                                                      # Spalte 2
-    dest_input = st.text_input("Zielpunkt", value = "Augsburg")
+with col3:  
+    dest_input = st.text_input("Zielpunkt 🏁", value="Augsburg")
     if dest_input:
         dest_name = dest_input
 
-with col4:                                                                      # Spalte 3
-    speed_input = st.text_input("Geschwindigkeit", value = "20")
+st.markdown(" ")                                                        # Abstand
+                                                                        # Reihe 2
+col4, col5, col6, col7 = st.columns([1, 1, 2, 1])
+
+with col4:  
+    speed_input = st.text_input("Geschwindigkeit", value="20")
     if speed_input:
         avg_speed = float(speed_input)
 
-with col5:                                                                      # Spalte 4
-    weight_biker_input = st.text_input("Körpergewicht kg", value = "75")
+with col5:  
+    weight_biker_input = st.text_input("Körpergewicht kg", value="75")
     if weight_biker_input:
         weight_biker_kg = float(weight_biker_input)
 
 with col6:
+    bike = st.radio(
+        "Fahrradtyp 🚴‍♂️ 🚵‍♂️ 🚲",
+        ["Rennrad", "Gravel", "Citybike"],
+        horizontal=True
+    )
+
+with col7:
     calc_route = st.button("Route berechnen")
 
 # Autostart Streamlit
@@ -64,7 +75,22 @@ if not os.environ.get("STREAMLIT_RUNNING"):
     cmd = [sys.executable, "-m", "streamlit", "run", app_path]
     subprocess.run(cmd)
 
+st.markdown(
+    """
+    <style>
+    .stApp {
+        background-image: url("https://wallpaperaccess.com/full/1908054.jpg");
+        background-size: cover;
+        background-position: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 if start_input and dest_input and speed_input: 
+
+    
 
     ##################################### Eingabe der Route und Verarbeitung ###############################################
 
@@ -80,10 +106,14 @@ if start_input and dest_input and speed_input:
 
     coords.append(dest_coords)
 
+    ############################### Fahrradtyp berechnen #################################################################
+
+    bike_profile = fb.bike_type(bike)      # Ändert das profile der Berechnung
+
     ############################### ORS-Route berechnen und Folium Karte erstellen #######################################
 
     # Route mit dem Fahrrad berechnen
-    route_bike = client.directions(coords, elevation = True, profile='cycling-regular', format='geojson')
+    route_bike = client.directions(coords, elevation = True, profile= bike_profile, format='geojson')
 
     # Geometrie extrahieren und decodieren
     geometry = route_bike['features'][0]['geometry']

@@ -75,6 +75,20 @@ def power_calories(weight_kg, average_speed_kmh, elevation_gain_m, duration_h, s
         "Kalorienverbrauch": calories_burned                            # Kalorienverbrauch in kcal  
     }
 
+########################################## Verarbeiten des Fahrradtyps ######################################################
+
+def bike_type(bike):
+    if bike == "Rennrad":
+        type_of_bike = "cycling-road"
+
+    if bike == "Gravel":
+        type_of_bike = "cycling-mountain"
+    
+    if bike == "Citybike":
+        type_of_bike = "cycling-regular"
+
+    return type_of_bike
+
 ########################################## Funktion zum Erstellen einer Überschrift #########################################
 
 def place_header(start, ziel):
