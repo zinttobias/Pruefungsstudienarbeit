@@ -16,7 +16,7 @@ import streamlit.components.v1 as components
 import subprocess
 import sys
 import os
-
+import webbrowser
 
 ##################################### Streamlit ###########################################################
 
@@ -48,7 +48,7 @@ app_path = os.path.join(os.path.dirname(__file__), app_file)
 
 
 if not os.environ.get("STREAMLIT_RUNNING"):
-    os.environ.get("STREAMLIT_RUNNING") = "true"
+    os.environ["STREAMLIT_RUNNING"] = "true"
     cmd = [sys.executable, "-m", "streamlit", "run", app_path]
     subprocess.run(cmd)
 
