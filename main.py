@@ -22,7 +22,7 @@ import webbrowser
 
 # Anpassungen
 st.title("Fahrradroute")                                                # Titel
-col1, col2, col3, col4 = st.columns(4)                                  # Spalten erzeugen
+col1, col2, col3, col4, col5 = st.columns(5)                            # Spalten erzeugen
 
 with col1:                                                              # Spalte 1
     start_input = st.text_input("Startpunkt", value = "München")
@@ -40,6 +40,11 @@ with col3:                                                              # Spalte
         avg_speed = float(speed_input)
 
 with col4:                                                              # Spalte 4
+    weight_biker_input = st.text_input("Körpergewicht in kg", value = "75")
+    if weight_biker_input:
+        weight_biker_kg = float(weight_biker_input)
+
+with col5:
     calc_route = st.button("Route berechnen")
 
 # Autostart Streamlit
@@ -60,7 +65,7 @@ if start_input and dest_input and speed_input:
     dest_coords =  fb.get_coords(dest_name)                     # Zielkoordinaten für die Route abrufen
     zs_coords = None
 
-    coords = [start_coords]                                                # Liste mit start als erstem Element
+    coords = [start_coords]                                         # Liste mit start als erstem Element
 
     ## route_v["Zwischenstopp"] is not None:                        # Wenn Zwischenstopp gefragt
     ##    zs_coords = fb.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
@@ -110,7 +115,7 @@ if start_input and dest_input and speed_input:
     Dauer_s_ORS  = route_bike['features'][0]['properties']['summary']['duration']   # Zeitdauer in Sekunden
     Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
     Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
-    Dauer_h_eigen = Distanz_km / 3 ##route_v["Durchschnittsgeschwindigkeit"]            # Dauer in Stunden
+    Dauer_h_eigen = Distanz_km / avg_speed                                          # Dauer in Stunden
 
     ############################### Höhenmeter aus der Route extrahieren ###############################################
 
@@ -119,7 +124,6 @@ if start_input and dest_input and speed_input:
 
     ############################## Sportrelevante Daten berechnen #######################################################
 
-    weight_biker_kg = 75                                    # Diese zwei Werte später als Eingabe abfragen   
     sport_data_yes_no = True                                # ob sportrelevante Daten gewünscht sind
     sport_data = fb.power_calories(weight_biker_kg,
                                     avg_speed,
