@@ -18,7 +18,7 @@ Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so 
 
 - Die Funktion wurde getestet und für funktionsfähig befunden
 - Der gesamte Code der erstellen Funktion wurde in den Main-branch überführt
-- 
+
 ----------------------------------------------------------------------------------------
 ## Definition Zeitaufwand Storypoints
 
