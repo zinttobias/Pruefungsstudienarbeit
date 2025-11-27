@@ -21,30 +21,37 @@ import webbrowser
 ##################################### Streamlit ###########################################################
 
 # Anpassungen
-st.title("Fahrradroute")                                                # Titel
-col1, col2, col3, col4, col5 = st.columns(5)                            # Spalten erzeugen
+st.title("Fahrradroute")                                                        # Titel
+col1, col2, col3, col4, col5, col6 = st.columns(6)                              # Spalten erzeugen
 
-with col1:                                                              # Spalte 1
+with col1:                                                                      # Spalte 1
     start_input = st.text_input("Startpunkt", value = "München")
     if start_input:
         start_name = start_input
 
-with col2:                                                              # Spalte 2
+with col2:
+    zs_input = st.text_input("Zwischenpunkt", value = None)
+    if zs_input:
+        zs_name = zs_input
+    else:
+        zs_name = None
+
+with col3:                                                                      # Spalte 2
     dest_input = st.text_input("Zielpunkt", value = "Augsburg")
     if dest_input:
         dest_name = dest_input
 
-with col3:                                                              # Spalte 3
+with col4:                                                                      # Spalte 3
     speed_input = st.text_input("Geschwindigkeit", value = "20")
     if speed_input:
         avg_speed = float(speed_input)
 
-with col4:                                                              # Spalte 4
-    weight_biker_input = st.text_input("Körpergewicht in kg", value = "75")
+with col5:                                                                      # Spalte 4
+    weight_biker_input = st.text_input("Körpergewicht kg", value = "75")
     if weight_biker_input:
         weight_biker_kg = float(weight_biker_input)
 
-with col5:
+with col6:
     calc_route = st.button("Route berechnen")
 
 # Autostart Streamlit
@@ -65,11 +72,11 @@ if start_input and dest_input and speed_input:
     dest_coords =  fb.get_coords(dest_name)                     # Zielkoordinaten für die Route abrufen
     zs_coords = None
 
-    coords = [start_coords]                                         # Liste mit start als erstem Element
+    coords = [start_coords]                                     # Liste mit start als erstem Element
 
-    ## route_v["Zwischenstopp"] is not None:                        # Wenn Zwischenstopp gefragt
-    ##    zs_coords = fb.get_coords(route_v["Zwischenstopp"])         # Zwischenstopp einfügen
-    ##    coords.append(zs_coords)
+    if zs_name is not None:                                     # Wenn Zwischenstopp gefragt
+        zs_coords = fb.get_coords(zs_name)                      # Zwischenstopp einfügen
+        coords.append(zs_coords)
 
     coords.append(dest_coords)
 
@@ -83,7 +90,7 @@ if start_input and dest_input and speed_input:
     coords_route = geometry['coordinates'] 
 
     #Start und Zielpunkt definieren
-    destination = dest_coords                                                    #Zielkoordinaten       
+    destination = dest_coords                                                         #Zielkoordinaten       
 
     #Map-Anzeigebereich von our_map 
     map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
@@ -98,8 +105,8 @@ if start_input and dest_input and speed_input:
 
     place_marker.start(start_coords, start_name)
 
-    ##if zs_coords is not None:
-    ##    place_marker.zwischenstopp(zs_coords, route_v["Zwischenstopp"])
+    if zs_name is not None:
+        place_marker.zwischenstopp(zs_coords, zs_name)
 
     place_marker.ziel(dest_coords, dest_name)
 
@@ -163,7 +170,6 @@ if start_input and dest_input and speed_input:
 
     ############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
-    MiniMap().add_to(map)                                         # Hinzufügen einer MiniMap
     MeasureControl().add_to(map)                                  # Hinzufügen eines Messwerkzeugs  
 
     if calc_route:
