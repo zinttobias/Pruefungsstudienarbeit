@@ -27,4 +27,11 @@ Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so 
 ## Wetterdienst API
 
 - Da die API vom deutschen Wetterdienst nicht funktioniert wie gewünscht habe ich jetzt die API von Open Meteo
-eingebunden, welche auch eine Installation in Anaconda benötigt
+eingebunden, welche auch eine Installation in Anaconda 
+
+## Streamlit
+
+- Um Streamlit automatisiert öffnen zu können folgenden Befehl in Anaconda eingeben
+"conda init powershell"
+- Jetzt kann man Anaconda über das Terminal in VS Code verwenden 
+-> "streamlit run main.py" Befehl funktioniert in VS Code
