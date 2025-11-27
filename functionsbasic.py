@@ -5,6 +5,13 @@ import requests as req
 import folium
 import openrouteservice
 import math
+from folium.plugins import MiniMap, MeasureControl
+import streamlit as st
+import streamlit.components.v1 as components
+import subprocess
+import sys
+import os
+import webbrowser
 
 #ORS-Client Zugangsschlüssel
 client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRmNzExNzZkYmZhMzQ4Njc5OGE3MDEzM2EwMWFiOWE5IiwiaCI6Im11cm11cjY0In0=")

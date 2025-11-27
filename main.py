@@ -7,16 +7,9 @@ Erstellungsdatum: 10.11.2025
 """
 
 import functionsbasic as fb
-from functionsbasic import *
+from functionsbasic import *            # Import von allem mit *
 import functionsweather as fw
-from functionsweather import *
-from folium.plugins import MiniMap, MeasureControl
-import streamlit as st
-import streamlit.components.v1 as components
-import subprocess
-import sys
-import os
-import webbrowser
+from functionsweather import *          # Alle anderen Packages in functionsbasic.py
 
 ##################################### Streamlit ###########################################################
 
@@ -50,12 +43,12 @@ with col4:
     if speed_input:
         avg_speed = float(speed_input)
 
-with col5:  
+with col5:                                                              # Eingabe des Körpergewichts
     weight_biker_input = st.text_input("Körpergewicht kg", value="75")
     if weight_biker_input:
         weight_biker_kg = float(weight_biker_input)
 
-with col6:
+with col6:                                                              # Ankreuzen des Radtyps
     bike = st.radio(
         "Fahrradtyp 🚴‍♂️ 🚵‍♂️ 🚲",
         ["Rennrad", "Gravel", "Citybike"],
@@ -75,7 +68,8 @@ if not os.environ.get("STREAMLIT_RUNNING"):
     cmd = [sys.executable, "-m", "streamlit", "run", app_path]
     subprocess.run(cmd)
 
-st.markdown(
+
+st.markdown(                # Hintergrundbild für Streamlit
     """
     <style>
     .stApp {
@@ -91,7 +85,6 @@ st.markdown(
 if start_input and dest_input and speed_input: 
 
     
-
     ##################################### Eingabe der Route und Verarbeitung ###############################################
 
     start_coords = fb.get_coords(start_name)                    # Startkoordinaten für die Route abrufen
@@ -106,11 +99,11 @@ if start_input and dest_input and speed_input:
 
     coords.append(dest_coords)
 
-    ############################### Fahrradtyp berechnen #################################################################
+    ######################################### Fahrradtyp berechnen #######################################################
 
     bike_profile = fb.bike_type(bike)      # Ändert das profile der Berechnung
 
-    ############################### ORS-Route berechnen und Folium Karte erstellen #######################################
+    ################################### ORS-Route berechnen und Folium Karte erstellen ###################################
 
     # Route mit dem Fahrrad berechnen
     route_bike = client.directions(coords, elevation = True, profile= bike_profile, format='geojson')
