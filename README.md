@@ -12,23 +12,32 @@ Rückgabewerte sind einem Directory angelegt, daher Startpunkt usw. nur noch so 
     route_v["Zielpunkt"]
     route_v["Zwischenstopp"]
     route_v["Durchschnittsgeschwindigkeit"]
+    
 ----------------------------------------------------------------------------------------
 ## Definition von "Done" für abgeschlossene Tasks
 
 - Die Funktion wurde getestet und für funktionsfähig befunden
 - Der gesamte Code der erstellen Funktion wurde in den Main-branch überführt
+- 
+----------------------------------------------------------------------------------------
+## Definition Zeitaufwand Storypoints
+
+ein Storypoint entspricht 10 Minuten
+
 ----------------------------------------------------------------------------------------
 ## Auslagerung der Standartfunktionen
 
 - Die Funktionen welche zu Folium bzw Openrouteservice gehören wurden in functionsbasic ausgelagert
 - Alle Packages die in Zukunft noch kommen sollten in functionsbasic eingeführt werden
-- Das Marker setzen funktioniert jetzt mit Klassen z.B. place_marker.start(start, route_v["Startpunkt"]) 
-
+- Das Marker setzen funktioniert jetzt mit Klassen z.B. place_marker.start(start, route_v["Startpunkt"])
+- 
+----------------------------------------------------------------------------------------
 ## Wetterdienst API
 
 - Da die API vom deutschen Wetterdienst nicht funktioniert wie gewünscht habe ich jetzt die API von Open Meteo
-eingebunden, welche auch eine Installation in Anaconda 
+eingebunden, welche auch eine Installation in Anaconda
 
+----------------------------------------------------------------------------------------
 ## Streamlit
 
 - Um Streamlit automatisiert öffnen zu können folgenden Befehl in Anaconda eingeben
