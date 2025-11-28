@@ -13,6 +13,7 @@ from functionsweather import *          # Alle anderen Packages in functionsbasi
 
 ##################################### Streamlit ###########################################################
 
+st.set_page_config(layout="wide")
 st.title("Fahrradroute 🚲 🗺️")                                                # Titel
 
 col1, col2, col3 = st.columns([1, 1, 1])                                # Reihe 1
@@ -196,8 +197,11 @@ if start_input and dest_input and speed_input:
     MeasureControl().add_to(map)                                  # Hinzufügen eines Messwerkzeugs  
 
     if calc_route:
-        map.save("meine_karte.html")                                  # Anzeigen/Speichern der Karte
+        map.save("meine_karte.html")
+        
+        # HTML laden und einbetten
+        with open("meine_karte.html", "r", encoding="utf-8") as f:
+            html_data = f.read()
 
-        # Karte als HTML rendern
-        html_data = map._repr_html_()
-        components.html(html_data, height=1200, width=1200)
+        st.components.v1.html(html_data, height=900, width=1800)
+
