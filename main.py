@@ -180,18 +180,7 @@ if start_input and dest_input and speed_input:
 
     Headline = fb.place_header(start_name, dest_name)   
 
-    Sidebar =  fb.place_sidebar(Distanz_km, Dauer_h_ORS, Dauer_h_eigen, avg_speed,
-                                start_name, dest_name, dest_name, ## route_v["Zwischenstopp"],  
-                                weather_sidebar["start_temp"], weather_sidebar["start_wind_speed"], weather_sidebar["start_wind_direction"],         
-                                weather_sidebar["ziel_temp"], weather_sidebar["ziel_wind_speed"], weather_sidebar["ziel_wind_direction"],
-                                weather_sidebar["zs_temp"], weather_sidebar["zs_wind_speed"], weather_sidebar["zs_wind_direction"],
-                                weather_sidebar["start_weather_text"], weather_sidebar["ziel_weather_text"], weather_sidebar["zs_weather_text"],
-                                elevation_up, elevation_down,
-                                sport_data_yes_no, sport_data
-                                )             
-
     map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
-    map.get_root().html.add_child(folium.Element(Sidebar))        # Sidebar HTML an Karte anhängen
 
     ############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
