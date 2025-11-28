@@ -88,11 +88,14 @@ def bike_type(bike):
     if bike == "Rennrad":
         type_of_bike = "cycling-road"
 
-    if bike == "Gravel":
+    elif bike == "Gravelbike":
         type_of_bike = "cycling-mountain"
     
-    if bike == "Citybike":
+    elif bike == "Citybike":
         type_of_bike = "cycling-regular"
+    
+    elif bike == "E-Bike":
+        type_of_bike = "cycling-electric"
 
     return type_of_bike
 
@@ -217,8 +220,8 @@ def place_sidebar(dist_km, dauer_ors, dauer_eigen, speed, start, ziel, zs,
             <!-- Sportdaten -->
             <div class="accordion-item">
                 <input type="checkbox" id="acc-sport">
-                <label class="accordion-label" for="acc-sport">Sportdaten</label>
-                <div class="accordion-content">
+                 <label class="accordion-label" for="acc-sport">Sportdaten</label>
+               <div class="accordion-content">
                     {sport_data_sidebar}
                 </div>
             </div>

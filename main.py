@@ -52,7 +52,7 @@ with col5:                                                              # Eingab
 with col6:                                                              # Ankreuzen des Radtyps
     bike = st.radio(
         "Fahrradtyp 🚴‍♂️ 🚵‍♂️ 🚲",
-        ["Rennrad", "Gravel", "Citybike"],
+        ["Rennrad", "Gravelbike", "Citybike", "E-Bike"],
         horizontal=True
     )
 
