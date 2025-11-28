@@ -36,14 +36,14 @@ with col3:
         dest_name = dest_input
 
 st.markdown(" ")                                                        # Abstand
-                                                                        # Reihe 2
-col4, col5, col6, col7 = st.columns([1, 1, 2, 1])
+                                                                        
+col4, col5, col6, col7 = st.columns([1, 1, 2, 1])                       # Reihe 2
 
 with col4:  
     speed_input = st.text_input("Geschwindigkeit", value="20")
     if speed_input:
         avg_speed = float(speed_input)
-
+    
 with col5:                                                              # Eingabe des Körpergewichts
     weight_biker_input = st.text_input("Körpergewicht kg", value="75")
     if weight_biker_input:
@@ -58,6 +58,7 @@ with col6:                                                              # Ankreu
 
 with col7:
     calc_route = st.button("Route berechnen")
+            
 
 # Autostart Streamlit
 app_file = "main.py"
@@ -202,6 +203,37 @@ if start_input and dest_input and speed_input:
         # HTML laden und einbetten
         with open("meine_karte.html", "r", encoding="utf-8") as f:
             html_data = f.read()
+
+        with st.sidebar.expander("Routeninfos", expanded=True):
+            st.write(f"**Distanz:** {Distanz_km:.2f} km")
+            st.write(f"**Dauer (ORS):** {Dauer_h_ORS:.2f} h")
+            st.write(f"**Geschwindigkeit angenommen:** {avg_speed:.2f} km/h")
+            st.write(f"**Dauer (eigene Berechnung):** {Dauer_h_eigen:.2f} h")
+            st.write(f"**Höhenmeter↑:** {elevation_up:.1f} m")
+            st.write(f"**Höhenmeter↓:** {elevation_down:.1f} m")
+            
+        with st.sidebar.expander("Wetter", expanded=True):
+            st.write(f"**Wetter in {start_name}**")
+            st.write(f"Beschreibung: {weather_sidebar["start_weather_text"]}")
+            st.write(f"Temperatur: {weather_sidebar["start_temp"]:.2f} °C")
+            st.write(f"Windgeschwindigkeit: {weather_sidebar["start_wind_speed"]:.2f} km/h")
+            st.write("---")
+            if zs_name is not None:
+                st.write(f"**Wetter in {zs_name}**")
+                st.write(f"Beschreibung: {weather_sidebar["zs_weather_text"]}")
+                st.write(f"Temperatur: {weather_sidebar["zs_temp"]:.2f} °C")
+                st.write(f"Windgeschwindigkeit: {weather_sidebar["zs_wind_speed"]:.2f} km/h")
+                st.write("---")
+            st.write(f"**Wetter in {dest_name}**")
+            st.write(f"Beschreibung: {weather_sidebar["ziel_weather_text"]}")
+            st.write(f"Temperatur: {weather_sidebar["ziel_temp"]:.2f} °C")
+            st.write(f"Windgeschwindigkeit: {weather_sidebar["ziel_wind_speed"]:.2f} km/h")
+
+        if sport_data_yes_no and sport_data is not None:
+            with st.sidebar.expander("Sportdaten", expanded=True):
+                st.write(f"**Leistung:** {sport_data['Gesamtleistung']:.2f} W")
+                st.write(f"**Kalorienverbrauch:** {sport_data['Kalorienverbrauch']:.2f} kcal")
+                
 
         st.components.v1.html(html_data, height=900, width=1800)
 
