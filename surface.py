@@ -19,7 +19,7 @@ SURFACE_TYPES = {
     11: "Eis",
     12: "Pflastersteine",
     13: "Sand",
-    14: "Holz",
+    14: "Kopfsteinpflaster",            #Holz?
     15: "Natursteinplatten",
     16: "Gras",
     17: "Rasengittersteine"

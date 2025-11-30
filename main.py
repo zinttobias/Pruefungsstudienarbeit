@@ -151,24 +151,27 @@ if start_input and dest_input and speed_input:
 
     ############################################### ORS-Route hinzufügen ###############################################
 
+
+# Set erstellen, um nur Oberflächen zu speichern, die auf der Route vorkommen
+    used_surfaces = set()                                               #Zur Speicherung der in der Route vorkommenden Untergründe
+
     for seg_start, seg_end, surface_code in surface_list:
 
-        # Koordinaten für das Teilsystem (von Index A bis B)
-        segment_coords = coords_route[seg_start : seg_end + 1]
+        segment_coords = coords_route[seg_start : seg_end + 1]          #Koordinaten für Wegabschnitte mit gleichem Untergrund
 
-        # Oberflächentyp vom Code ins Deutsche übersetzen
-        surface_name = SURFACE_TYPES.get(surface_code, "unbekannt")
+        surface_name = SURFACE_TYPES.get(surface_code, "unbekannt")     #Abruf Oberflächentyp
 
-        # Farbe für diesen Belag bestimmen
-        color = SURFACE_COLORS.get(surface_name, "black")
+        color = SURFACE_COLORS.get(surface_name, "black")               #Abruf Untergrundfarbe
 
         # Abschnitt auf Karte zeichnen
         folium.PolyLine(
-        [(coord[1], coord[0]) for coord in segment_coords],  # lat, lon
+        [(coord[1], coord[0]) for coord in segment_coords],             # lat, lon
         color=color,
         weight=5,
         opacity=0.8
         ).add_to(map)
+
+        used_surfaces.add(surface_name)                                 #Abspeichern der Untergründe
 
 
     ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
@@ -253,6 +256,14 @@ if start_input and dest_input and speed_input:
                 st.write(f"**Leistung:** {sport_data['Gesamtleistung']:.2f} W")
                 st.write(f"**Kalorienverbrauch:** {sport_data['Kalorienverbrauch']:.2f} kcal")
                 
+        with st.sidebar.expander("Legende – Wegoberflächen", expanded=True):
+            st.write("**Farbcodierung der Oberflächen:**")
+            for surface in used_surfaces:  # nur die Oberflächen anzeigen, die wirklich auf der Route vorkommen
+                color = SURFACE_COLORS.get(surface, "black")
+                st.markdown(
+                    f"<span style='color:{color}; font-weight:bold;'>█</span> {surface}",
+                    unsafe_allow_html=True
+                )
 
         st.components.v1.html(html_data, height=900, width=1800)
 
