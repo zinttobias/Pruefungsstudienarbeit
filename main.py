@@ -7,9 +7,11 @@ Erstellungsdatum: 10.11.2025
 """
 
 import functionsbasic as fb
-from functionsbasic import *            # Import von allem mit *
+from functionsbasic import *                        # Import von allem mit *
 import functionsweather as fw
-from functionsweather import *          # Alle anderen Packages in functionsbasic.py
+from functionsweather import *                      # Alle anderen Packages in functionsbasic.py
+from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes und Farben
+
 
 ##################################### Streamlit ###########################################################
 
@@ -108,7 +110,14 @@ if start_input and dest_input and speed_input:
     ################################### ORS-Route berechnen und Folium Karte erstellen ###################################
 
     # Route mit dem Fahrrad berechnen
-    route_bike = client.directions(coords, elevation = True, profile= bike_profile, format='geojson')
+    #route_bike = client.directions(coords, elevation = True, profile= bike_profile, format='geojson')
+    route_bike = client.directions(
+    coords,
+    elevation = True,
+    profile = bike_profile,
+    format = 'geojson',
+    extra_info=["surface"]                  #Untergründe von ORS abrufen
+)
 
     # Geometrie extrahieren und decodieren
     geometry = route_bike['features'][0]['geometry']
