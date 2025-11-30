@@ -109,9 +109,7 @@ if start_input and dest_input and speed_input:
 
     ################################### ORS-Route berechnen und Folium Karte erstellen ###################################
 
-    # Route mit dem Fahrrad berechnen
-    #route_bike = client.directions(coords, elevation = True, profile= bike_profile, format='geojson')
-    route_bike = client.directions(
+    route_bike = client.directions(         #Route mit dem Fahrrad berechnen
     coords,
     elevation = True,
     profile = bike_profile,
@@ -121,7 +119,13 @@ if start_input and dest_input and speed_input:
 
     # Geometrie extrahieren und decodieren
     geometry = route_bike['features'][0]['geometry']
-    coords_route = geometry['coordinates'] 
+    coords_route = geometry['coordinates']
+
+    # Surface-Daten (Abschnittsweise Untergründe)
+    # Format: [start_index, end_index, surface_code]
+
+    surface_list = route_bike["features"][0]["properties"]["extras"]["surface"]["values"]
+
 
     #Start und Zielpunkt definieren
     destination = dest_coords                                                         #Zielkoordinaten       
@@ -147,8 +151,25 @@ if start_input and dest_input and speed_input:
 
     ############################################### ORS-Route hinzufügen ###############################################
 
-    folium.PolyLine([(lat, lon) for lon, lat, _ in coords_route],
-                color="red", weight=5, opacity=0.8).add_to(map)
+    for seg_start, seg_end, surface_code in surface_list:
+
+        # Koordinaten für das Teilsystem (von Index A bis B)
+        segment_coords = coords_route[seg_start : seg_end + 1]
+
+        # Oberflächentyp vom Code ins Deutsche übersetzen
+        surface_name = SURFACE_TYPES.get(surface_code, "unbekannt")
+
+        # Farbe für diesen Belag bestimmen
+        color = SURFACE_COLORS.get(surface_name, "black")
+
+        # Abschnitt auf Karte zeichnen
+        folium.PolyLine(
+        [(coord[1], coord[0]) for coord in segment_coords],  # lat, lon
+        color=color,
+        weight=5,
+        opacity=0.8
+        ).add_to(map)
+
 
     ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
 
