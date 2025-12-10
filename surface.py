@@ -7,43 +7,43 @@
 SURFACE_TYPES = {
     0: "unbekannt",
     1: "gepflastert",
-    2: "ungepflastert",
+    2: "ungepflastert",                 #beinhaltet Holzchips, Fels
     3: "Asphalt",
     4: "Beton",
-    5: "Kopfsteinpflaster",
+    5: "Kopfsteinpflaster",             #Wert existiert nicht mehr
     6: "verdichtet",
     7: "Holz",
     8: "Schotter",
-    9: "feiner Kies",
+    9: "feiner Kies",                   #Wert existiert nicht mehr
     10: "natürlicher Boden",
     11: "Erde",
     12: "Matsch",
     13: "Schnee/Eis",
     14: "Kopfsteinpflaster",
     15: "Sand",
-    16: "Holzchips",
+    16: "Holzchips",                    #Wert existiert nicht mehr
     17: "Gras",
     18: "Rasengitterstein"
 }
 
 # Farbcode für Folium - Routenanzeige, statt rot
 SURFACE_COLORS = {
+    "unbekannt": "black",
+    "gepflastert": "blue",
+    "ungepflastert": "brown",
     "Asphalt": "blue",
     "Beton": "lightblue",
-    "befestigt": "blue",
-    "Pflastersteine": "gray",
-    "Kopfsteinpflaster": "darkgray",
-    "Feinschotter": "orange",
-    "Schotter": "saddlebrown",
-    "Erde": "green",
-    "natürlicher Boden": "darkgreen",
-    "Gras": "lightgreen",
-    "Sand": "yellow",
-    "Holz": "peru",
+    "Kopfsteinpflaster": "gray",
     "verdichtet": "burlywood",
-    "Rasengittersteine": "olive",
-    "Natursteinplatten": "dimgray",
-    "Eis": "cyan",
-    "unbefestigt": "brown",
-    "unbekannt": "black"
+    "Holz": "peru",
+    "Schotter": "saddlebrown",
+    "feiner Kies": "orange",
+    "natürlicher Boden": "dark green",
+    "Erde": "green",
+    "Matsch": "brown",
+    "Schnee/Eis": "cyan",
+    "Sand": "yellow",
+    "Holzchips": "peru",
+    "Gras": "lightgreen",
+    "Rasengitterstein": "olive"
 }
