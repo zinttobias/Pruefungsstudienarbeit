@@ -132,18 +132,49 @@ if start_input and dest_input and speed_input:
     coords,
     elevation = True,
     profile = bike_profile,
+    alternative_routes={
+                "target_count": 3,     # Versuche 3 Routen zu finden
+                "weight_factor": 1.4,  # Wie viel länger darf die Alternative sein? (1.4 = 40% länger erlaubt)
+                "share_factor": 0.7    # Wie viel darf sie sich mit der Hauptroute überschneiden?
+            },
     format = 'geojson',
     extra_info=["surface"]                  #Untergründe von ORS abrufen
-)
+    )
+
+    # Prüfen, ob Alternative Routen vorhanden sind
+    selected_route_index = 0
+    if route_bike and 'features' in route_bike:
+        route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
+        route_count = len(route_list)
+
+        if route_count > 1:
+            # Liste mit Namen für Buttons
+            optionen_namen = []
+            
+            for i, route in enumerate(route_list):
+                # Kurze Infos für die Auswahloptionen
+                props = route['properties']['summary']
+                km = round(props['distance'] / 1000, 1)
+                minutes = round(props['duration'] / 60)
+                
+                label = f"Route {i+1} ({km} km, {minutes} Min.)"
+                optionen_namen.append(label)
+
+            # Auswahlfenster erstellen
+            auswahl_text = st.radio("Wähle deine Route:", optionen_namen, horizontal = True)
+            
+            # 3. Den Index zurückholen (Wo in der Liste steht der gewählte Text?)
+            selected_route_index = optionen_namen.index(auswahl_text)
+            
 
     # Geometrie extrahieren und decodieren
-    geometry = route_bike['features'][0]['geometry']
+    geometry = route_bike['features'][selected_route_index]['geometry']
     coords_route = geometry['coordinates']
 
     # Surface-Daten (Abschnittsweise Untergründe)
     # Format: [start_index, end_index, surface_code]
 
-    surface_list = route_bike["features"][0]["properties"]["extras"]["surface"]["values"]
+    surface_list = route_bike["features"][selected_route_index]["properties"]["extras"]["surface"]["values"]
 
 
     #Start und Zielpunkt definieren
@@ -195,16 +226,16 @@ if start_input and dest_input and speed_input:
 
     ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
 
-    Distanz_m = route_bike['features'][0]['properties']['summary']['distance']      # Distanz in Meter
-    Dauer_s_ORS  = route_bike['features'][0]['properties']['summary']['duration']   # Zeitdauer in Sekunden
+    Distanz_m = route_bike['features'][selected_route_index]['properties']['summary']['distance']      # Distanz in Meter
+    Dauer_s_ORS  = route_bike['features'][selected_route_index]['properties']['summary']['duration']   # Zeitdauer in Sekunden
     Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
     Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
     Dauer_h_eigen = Distanz_km / avg_speed                                          # Dauer in Stunden
 
     ############################### Höhenmeter aus der Route extrahieren ###############################################
 
-    elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
-    elevation_down = route_bike['features'][0]['properties']['descent']             # Höhenmeter Abstieg
+    elevation_up = route_bike['features'][selected_route_index]['properties']['ascent']                # Höhenmeter Anstieg
+    elevation_down = route_bike['features'][selected_route_index]['properties']['descent']             # Höhenmeter Abstieg
 
     ############################## Sportrelevante Daten berechnen #######################################################
 
