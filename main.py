@@ -9,9 +9,7 @@ Erstellungsdatum: 10.11.2025
 import functionsbasic as fb
 from functionsbasic import *                        # Import von allem mit *
 import functionsweather as fw
-from functionsweather import *                      # Alle anderen Packages in functionsbasic.py
 from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes und Farben
-
 
 ##################################### Streamlit ###########################################################
 
@@ -58,7 +56,7 @@ with col6:
 
 st.markdown(" ")                                                        # Abstand
                                                                         
-col7, col8, col9, col10 = st.columns([1, 1, 1, 1], vertical_alignment="bottom")              # Reihe 2
+col7, col8, col9, col10, col11 = st.columns([1, 1, 1, 1, 1], vertical_alignment="bottom")              # Reihe 2
 
 with col7:  
     speed_input = st.text_input("Geschwindigkeit", value="20")
@@ -76,8 +74,10 @@ with col9:                                                              # Ankreu
         ["Rennrad", "Gravelbike", "Citybike", "E-Bike"],
         horizontal=True
     )
-
 with col10:
+    start_time_hours = st.number_input("Start in h ab jetzt", min_value=0, max_value=168, value=0, step=1)
+
+with col11:
     calc_route = st.button("Route berechnen")
             
 
@@ -198,7 +198,10 @@ if start_input and dest_input and speed_input:
 
     ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
 
-    weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, dest_coords, zs_coords)
+    duration_hours = 4                              # Fahrtzeit in Stunden !!!!!!!!!!!!noch ändern!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+    weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, dest_coords, zs_coords, 
+                                                   int(start_time_hours), duration_hours)
 
     ############################### Platzieren der Folium Marker auf der Karte ##########################################
     place_marker = fb.MarkerPlacingFolium(our_map)
@@ -253,8 +256,6 @@ if start_input and dest_input and speed_input:
         ).add_to(our_map)
 
         used_surfaces.add(surface_name)                                 #Abspeichern der Untergründe
-
-        
 
     ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
 
@@ -316,7 +317,7 @@ if start_input and dest_input and speed_input:
             st.write(f"**Höhenmeter↑:** {elevation_up:.1f} m")
             st.write(f"**Höhenmeter↓:** {elevation_down:.1f} m")
             
-        with st.sidebar.expander("Wetter", expanded=True):
+        with st.sidebar.expander("Aktuelles Wetter", expanded=True):
             st.write(f"**Wetter in {start_name}**")
             st.write(f"Beschreibung: {weather_sidebar["start_weather_text"]}")
             st.write(f"Temperatur: {weather_sidebar["start_temp"]:.2f} °C")
@@ -337,6 +338,18 @@ if start_input and dest_input and speed_input:
             with st.sidebar.expander("Sportdaten", expanded=True):
                 st.write(f"**Leistung:** {sport_data['Gesamtleistung']:.2f} W")
                 st.write(f"**Kalorienverbrauch:** {sport_data['Kalorienverbrauch']:.2f} kcal")
+
+        with st.sidebar.expander("Wettervorhersage", expanded=True):
+
+            if weather_sidebar.get("fahrradfahren_empfohlen", None) is not None:
+                if weather_sidebar["fahrradfahren_empfohlen"]:
+                    st.success("✅ Fahrradfahren empfohlen")
+                else:
+                    st.error("❌ Fahrradfahren nicht empfohlen")
+                    gruende = weather_sidebar.get("gruende_gegen_fahrradfahren", [])
+                    if gruende is not None:
+                        for g in gruende:
+                            st.write("-", g)
                 
         with st.sidebar.expander("Legende – Wegoberflächen", expanded=True):
             st.write("**Farbcodierung der Oberflächen:**")
