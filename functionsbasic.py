@@ -12,6 +12,7 @@ import subprocess
 import sys
 import os
 import webbrowser
+import ipinfo
 
 #ORS-Client Zugangsschlüssel
 client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyNDgiLCJpZCI6ImRmNzExNzZkYmZhMzQ4Njc5OGE3MDEzM2EwMWFiOWE5IiwiaCI6Im11cm11cjY0In0=")
@@ -116,8 +117,13 @@ def place_header(start, ziel):
     </div>
     """
 
-#####################################################################################################################################################
+########################################### Standortabfrage ###############################################################
 
+access_token = 'a8e2f4c99a642d' 
+handler = ipinfo.getHandler(access_token)
+location = handler.getDetails()
+
+#####################################################################################################################################################
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # Hier drunter keine Funktionsdefinitionen mehr einfügen !!!!!!!!!!!!!!!
 # Ansonsten werden die Informationen im schlimmsten Fall nicht mehr in Headline und Sidebar angezeigt !!!!
