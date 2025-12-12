@@ -18,33 +18,43 @@ from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes
 st.set_page_config(layout="wide")
 st.title("Fahrradroute 🚲 🗺️")                                                # Titel
 
+if 'start' not in st.session_state:
+    st.session_state.start = "München"
+
+if 'zs' not in st.session_state:
+    st.session_state.zs = ""
+
+if 'dest' not in st.session_state:
+    st.session_state.dest = "Augsburg"
+
 col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")                   # Reihe 1
 
 with col1:  
-    start_input = st.text_input("Startpunkt 📍", value="München")
+    start_input = st.text_input("Startpunkt 📍", key = "start")
     if start_input:
         start_name = start_input
 
 with col2:
-    st.button("📍", key = "button_start", help = "Standort als Startpunkt festlegen")
+    st.button("📍", key = "button_start", help = "Standort als Startpunkt festlegen", on_click=fb.update_ipinfo, args=("Startpunkt",))
+    
 
 with col3:
-    zs_input = st.text_input("Zwischenpunkt 🔸")
+    zs_input = st.text_input("Zwischenpunkt 🔸", key = "zs")
     if zs_input:
         zs_name = zs_input
     else:
         zs_name = None
 
 with col4:
-    st.button("📍", key = "button_zs", help = "Standort als Zwischenpunkt festlegen")
+    location_zs = st.button("📍", key = "button_zs", help = "Standort als Zwischenpunkt festlegen", on_click=fb.update_ipinfo, args=("Zwischenpunkt",))
 
 with col5:  
-    dest_input = st.text_input("Zielpunkt 🏁", value="Augsburg")
+    dest_input = st.text_input("Zielpunkt 🏁", key = "dest")
     if dest_input:
         dest_name = dest_input
 
 with col6:
-    st.button("📍", key = "button_dest", help = "Standort als Zielpunkt festlegen")
+    location_dest = st.button("📍", key = "button_dest", help = "Standort als Zielpunkt festlegen", on_click=fb.update_ipinfo, args=("Zielpunkt",))
 
 st.markdown(" ")                                                        # Abstand
                                                                         

@@ -119,9 +119,22 @@ def place_header(start, ziel):
 
 ########################################### Standortabfrage ###############################################################
 
-access_token = 'a8e2f4c99a642d' 
+access_token = 'a8e2f4c99a642d'
 handler = ipinfo.getHandler(access_token)
-location = handler.getDetails()
+
+def update_ipinfo(location_button):
+    try:
+        location = handler.getDetails()
+        found_city = location.city
+        if location_button == "Startpunkt":
+            st.session_state.start = found_city
+        if location_button == "Zwischenpunkt":
+            st.session_state.zs = found_city
+        if location_button == "Zielpunkt":
+            st.session_state.dest = found_city
+            
+    except Exception as e:  
+        st.error(f"Fehler bei der API-Abfrage: {e}")
 
 #####################################################################################################################################################
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
