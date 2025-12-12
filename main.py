@@ -18,47 +18,66 @@ from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes
 st.set_page_config(layout="wide")
 st.title("Fahrradroute 🚲 🗺️")                                                # Titel
 
-col1, col2, col3 = st.columns([1, 1, 1])                                # Reihe 1
+if 'start' not in st.session_state:
+    st.session_state.start = "München"
+
+if 'zs' not in st.session_state:
+    st.session_state.zs = ""
+
+if 'dest' not in st.session_state:
+    st.session_state.dest = "Augsburg"
+
+col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")                   # Reihe 1
 
 with col1:  
-    start_input = st.text_input("Startpunkt 📍", value="München")
+    start_input = st.text_input("Startpunkt 📍", key = "start")
     if start_input:
         start_name = start_input
 
 with col2:
-    zs_input = st.text_input("Zwischenpunkt 🔸", value=None)
+    st.button("📍", key = "button_start", help = "Standort als Startpunkt festlegen", on_click=fb.update_ipinfo, args=("Startpunkt",))
+    
+
+with col3:
+    zs_input = st.text_input("Zwischenpunkt 🔸", key = "zs")
     if zs_input:
         zs_name = zs_input
     else:
         zs_name = None
 
-with col3:  
-    dest_input = st.text_input("Zielpunkt 🏁", value="Augsburg")
+with col4:
+    location_zs = st.button("📍", key = "button_zs", help = "Standort als Zwischenpunkt festlegen", on_click=fb.update_ipinfo, args=("Zwischenpunkt",))
+
+with col5:  
+    dest_input = st.text_input("Zielpunkt 🏁", key = "dest")
     if dest_input:
         dest_name = dest_input
 
+with col6:
+    location_dest = st.button("📍", key = "button_dest", help = "Standort als Zielpunkt festlegen", on_click=fb.update_ipinfo, args=("Zielpunkt",))
+
 st.markdown(" ")                                                        # Abstand
                                                                         
-col4, col5, col6, col7 = st.columns([1, 1, 2, 1])                       # Reihe 2
+col7, col8, col9, col10 = st.columns([1, 1, 1, 1], vertical_alignment="bottom")              # Reihe 2
 
-with col4:  
+with col7:  
     speed_input = st.text_input("Geschwindigkeit", value="20")
     if speed_input:
         avg_speed = float(speed_input)
     
-with col5:                                                              # Eingabe des Körpergewichts
+with col8:                                                              # Eingabe des Körpergewichts
     weight_biker_input = st.text_input("Körpergewicht kg", value="75")
     if weight_biker_input:
         weight_biker_kg = float(weight_biker_input)
 
-with col6:                                                              # Ankreuzen des Radtyps
+with col9:                                                              # Ankreuzen des Radtyps
     bike = st.radio(
         "Fahrradtyp 🚴‍♂️ 🚵‍♂️ 🚲",
         ["Rennrad", "Gravelbike", "Citybike", "E-Bike"],
         horizontal=True
     )
 
-with col7:
+with col10:
     calc_route = st.button("Route berechnen")
             
 
