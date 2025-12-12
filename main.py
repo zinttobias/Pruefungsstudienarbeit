@@ -127,53 +127,66 @@ if start_input and dest_input and speed_input:
     bike_profile = fb.bike_type(bike)      # Ändert das profile der Berechnung
 
     ################################### ORS-Route berechnen und Folium Karte erstellen ###################################
-
-    route_bike = client.directions(         #Route mit dem Fahrrad berechnen
-    coords,
-    elevation = True,
-    profile = bike_profile,
-    alternative_routes={
+    
+    if 'selected_route_index' not in st.session_state:
+        st.session_state.selected_route_index = 0
+        
+    if zs_name == None:
+        route_bike = client.directions(         #Route mit dem Fahrrad berechnen
+        coords,
+        elevation = True,
+        profile = bike_profile,
+        alternative_routes={
                 "target_count": 3,     # Versuche 3 Routen zu finden
                 "weight_factor": 1.4,  # Wie viel länger darf die Alternative sein? (1.4 = 40% länger erlaubt)
                 "share_factor": 0.7    # Wie viel darf sie sich mit der Hauptroute überschneiden?
             },
-    format = 'geojson',
-    extra_info=["surface"]                  #Untergründe von ORS abrufen
-    )
+        format = 'geojson',
+        extra_info=["surface"]                  #Untergründe von ORS abrufen
+        )
 
-    # Prüfen, ob Alternative Routen vorhanden sind
-    selected_route_index = 0
-    if route_bike and 'features' in route_bike:
-        route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
-        route_count = len(route_list)
+        # Prüfen, ob Alternative Routen vorhanden sind
+        if route_bike and 'features' in route_bike:
+            route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
+            route_count = len(route_list)
 
-        if route_count > 1:
-            # Liste mit Namen für Buttons
-            route_name = []
-            
-            for i, route in enumerate(route_list):
-                # Kurze Infos für die Auswahloptionen
-                props = route['properties']['summary']
-                km = round(props['distance'] / 1000, 1)
-                minutes = round(props['duration'] / 60)
+            if route_count > 1:
+                # Liste mit Namen für Buttons
+                route_name = []
                 
-                label = f"Route {i+1} ({km} km, {minutes} Min.)"
-                route_name.append(label)
+                for i, route in enumerate(route_list):
+                    # Kurze Infos für die Auswahloptionen
+                    props = route['properties']['summary']
+                    km = round(props['distance'] / 1000, 1)
+                    minutes = round(props['duration'] / 60)
+                    
+                    label = f"Route {i+1} ({km} km, {minutes} Min.)"
+                    route_name.append(label)
 
-            # Auswahlfenster erstellen
-            route_select = st.radio("Wähle deine Route:", route_name, horizontal = True)
-            selected_route_index = route_name.index(route_select)
+                # Auswahlfenster erstellen
+                route_select = st.radio("Wähle deine Route:", route_name, horizontal = True)
+                st.session_state.selected_route_index = route_name.index(route_select)
 
+    #Bei Zwischenstopp sind keine Alternativrouten möglich
+    else: 
+        st.session_state.selected_route_index = 0
+        route_bike = client.directions(         #Route mit dem Fahrrad berechnen
+        coords,
+        elevation = True,
+        profile = bike_profile,
+        format = 'geojson',
+        extra_info=["surface"]                  #Untergründe von ORS abrufen
+        )
 
     # Geometrie extrahieren und decodieren
-    current_route = route_bike['features'][selected_route_index]['geometry']
+    current_route = route_bike['features'][st.session_state.selected_route_index]['geometry']
     coords_route = current_route['coordinates']
 
 
     # Surface-Daten (Abschnittsweise Untergründe)
     # Format: [start_index, end_index, surface_code]
 
-    surface_list = route_bike["features"][selected_route_index]["properties"]["extras"]["surface"]["values"]
+    surface_list = route_bike["features"][st.session_state.selected_route_index]["properties"]["extras"]["surface"]["values"]
 
 
     #Start und Zielpunkt definieren
@@ -205,12 +218,12 @@ if start_input and dest_input and speed_input:
     used_surfaces = set()                                               #Zur Speicherung der in der Route vorkommenden Untergründe
 
     # Alternativerouten zeichnen
-    if route_bike and 'features' in route_bike:
+    if route_bike and 'features' in route_bike and zs_name == None:
         route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
         route_count = len(route_list)
 
         for i, route in enumerate(route_list):
-                if selected_route_index != i and route_count > 1:
+                if st.session_state.selected_route_index != i and route_count > 1:
                     alternative_route = route_bike['features'][i]['geometry']
                     coords_alternative_route = alternative_route['coordinates']
                     folium.PolyLine(
@@ -218,7 +231,7 @@ if start_input and dest_input and speed_input:
                         color="gray",
                         weight=5,
                         opacity=0.8,
-                        tooltip=f"Route {i}"
+                        tooltip=f"Route {i + 1}"
                    ).add_to(our_map)
 
     #Ausgewählte Route zeichnen
@@ -232,11 +245,11 @@ if start_input and dest_input and speed_input:
 
         # Abschnitt auf Karte zeichnen
         folium.PolyLine(
-        [(coord[1], coord[0]) for coord in segment_coords],             # lat, lon
-        color=color,
-        weight=5,
-        opacity=0.8,
-        tooltip=f"Route {selected_route_index}"
+            [(coord[1], coord[0]) for coord in segment_coords],             # lat, lon
+            color=color,
+            weight=5,
+            opacity=0.8,
+            tooltip=f"Route {st.session_state.selected_route_index + 1}"
         ).add_to(our_map)
 
         used_surfaces.add(surface_name)                                 #Abspeichern der Untergründe
@@ -245,16 +258,16 @@ if start_input and dest_input and speed_input:
 
     ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
 
-    Distanz_m = route_bike['features'][selected_route_index]['properties']['summary']['distance']      # Distanz in Meter
-    Dauer_s_ORS  = route_bike['features'][selected_route_index]['properties']['summary']['duration']   # Zeitdauer in Sekunden
+    Distanz_m = route_bike['features'][st.session_state.selected_route_index]['properties']['summary']['distance']      # Distanz in Meter
+    Dauer_s_ORS  = route_bike['features'][st.session_state.selected_route_index]['properties']['summary']['duration']   # Zeitdauer in Sekunden
     Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
     Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
     Dauer_h_eigen = Distanz_km / avg_speed                                          # Dauer in Stunden
 
     ############################### Höhenmeter aus der Route extrahieren ###############################################
 
-    elevation_up = route_bike['features'][selected_route_index]['properties']['ascent']                # Höhenmeter Anstieg
-    elevation_down = route_bike['features'][selected_route_index]['properties']['descent']             # Höhenmeter Abstieg
+    elevation_up = route_bike['features'][st.session_state.selected_route_index]['properties']['ascent']                # Höhenmeter Anstieg
+    elevation_down = route_bike['features'][st.session_state.selected_route_index]['properties']['descent']             # Höhenmeter Abstieg
 
     ############################## Sportrelevante Daten berechnen #######################################################
 
