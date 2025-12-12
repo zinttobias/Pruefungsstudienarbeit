@@ -127,38 +127,81 @@ if start_input and dest_input and speed_input:
     bike_profile = fb.bike_type(bike)      # Ändert das profile der Berechnung
 
     ################################### ORS-Route berechnen und Folium Karte erstellen ###################################
+    
+    if 'selected_route_index' not in st.session_state:
+        st.session_state.selected_route_index = 0
+        
+    if zs_name == None:
+        route_bike = client.directions(         #Route mit dem Fahrrad berechnen
+        coords,
+        elevation = True,
+        profile = bike_profile,
+        alternative_routes={
+                "target_count": 3,     # Versuche 3 Routen zu finden
+                "weight_factor": 1.4,  # Wie viel länger darf die Alternative sein? (1.4 = 40% länger erlaubt)
+                "share_factor": 0.7    # Wie viel darf sie sich mit der Hauptroute überschneiden?
+            },
+        format = 'geojson',
+        extra_info=["surface"]                  #Untergründe von ORS abrufen
+        )
 
-    route_bike = client.directions(         #Route mit dem Fahrrad berechnen
-    coords,
-    elevation = True,
-    profile = bike_profile,
-    format = 'geojson',
-    extra_info=["surface"]                  #Untergründe von ORS abrufen
-)
+        # Prüfen, ob Alternative Routen vorhanden sind
+        if route_bike and 'features' in route_bike:
+            route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
+            route_count = len(route_list)
+
+            if route_count > 1:
+                # Liste mit Namen für Buttons
+                route_name = []
+                
+                for i, route in enumerate(route_list):
+                    # Kurze Infos für die Auswahloptionen
+                    props = route['properties']['summary']
+                    km = round(props['distance'] / 1000, 1)
+                    minutes = round(props['duration'] / 60)
+                    
+                    label = f"Route {i+1} ({km} km, {minutes} Min.)"
+                    route_name.append(label)
+
+                # Auswahlfenster erstellen
+                route_select = st.radio("Wähle deine Route:", route_name, horizontal = True)
+                st.session_state.selected_route_index = route_name.index(route_select)
+
+    #Bei Zwischenstopp sind keine Alternativrouten möglich
+    else: 
+        st.session_state.selected_route_index = 0
+        route_bike = client.directions(         #Route mit dem Fahrrad berechnen
+        coords,
+        elevation = True,
+        profile = bike_profile,
+        format = 'geojson',
+        extra_info=["surface"]                  #Untergründe von ORS abrufen
+        )
 
     # Geometrie extrahieren und decodieren
-    geometry = route_bike['features'][0]['geometry']
-    coords_route = geometry['coordinates']
+    current_route = route_bike['features'][st.session_state.selected_route_index]['geometry']
+    coords_route = current_route['coordinates']
+
 
     # Surface-Daten (Abschnittsweise Untergründe)
     # Format: [start_index, end_index, surface_code]
 
-    surface_list = route_bike["features"][0]["properties"]["extras"]["surface"]["values"]
+    surface_list = route_bike["features"][st.session_state.selected_route_index]["properties"]["extras"]["surface"]["values"]
 
 
     #Start und Zielpunkt definieren
     destination = dest_coords                                                         #Zielkoordinaten       
 
     #Map-Anzeigebereich von our_map 
-    map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
+    our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
 
 
     ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
 
-    weather_sidebar = fw.include_weather_to_folium(map, start_coords, dest_coords, zs_coords)
+    weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, dest_coords, zs_coords)
 
     ############################### Platzieren der Folium Marker auf der Karte ##########################################
-    place_marker = fb.MarkerPlacingFolium(map)
+    place_marker = fb.MarkerPlacingFolium(our_map)
 
     place_marker.start(start_coords, start_name)
 
@@ -174,6 +217,24 @@ if start_input and dest_input and speed_input:
 # Set erstellen, um nur Oberflächen zu speichern, die auf der Route vorkommen
     used_surfaces = set()                                               #Zur Speicherung der in der Route vorkommenden Untergründe
 
+    # Alternativerouten zeichnen
+    if route_bike and 'features' in route_bike and zs_name == None:
+        route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
+        route_count = len(route_list)
+
+        for i, route in enumerate(route_list):
+                if st.session_state.selected_route_index != i and route_count > 1:
+                    alternative_route = route_bike['features'][i]['geometry']
+                    coords_alternative_route = alternative_route['coordinates']
+                    folium.PolyLine(
+                        [(coord[1], coord[0]) for coord in coords_alternative_route],
+                        color="gray",
+                        weight=5,
+                        opacity=0.8,
+                        tooltip=f"Route {i + 1}"
+                   ).add_to(our_map)
+
+    #Ausgewählte Route zeichnen
     for seg_start, seg_end, surface_code in surface_list:
 
         segment_coords = coords_route[seg_start : seg_end + 1]          #Koordinaten für Wegabschnitte mit gleichem Untergrund
@@ -184,27 +245,29 @@ if start_input and dest_input and speed_input:
 
         # Abschnitt auf Karte zeichnen
         folium.PolyLine(
-        [(coord[1], coord[0]) for coord in segment_coords],             # lat, lon
-        color=color,
-        weight=5,
-        opacity=0.8
-        ).add_to(map)
+            [(coord[1], coord[0]) for coord in segment_coords],             # lat, lon
+            color=color,
+            weight=5,
+            opacity=0.8,
+            tooltip=f"Route {st.session_state.selected_route_index + 1}"
+        ).add_to(our_map)
 
         used_surfaces.add(surface_name)                                 #Abspeichern der Untergründe
 
+        
 
     ################ Entfernung und Dauer aus der Route extrahieren und Umrechnen der Daten#############################
 
-    Distanz_m = route_bike['features'][0]['properties']['summary']['distance']      # Distanz in Meter
-    Dauer_s_ORS  = route_bike['features'][0]['properties']['summary']['duration']   # Zeitdauer in Sekunden
+    Distanz_m = route_bike['features'][st.session_state.selected_route_index]['properties']['summary']['distance']      # Distanz in Meter
+    Dauer_s_ORS  = route_bike['features'][st.session_state.selected_route_index]['properties']['summary']['duration']   # Zeitdauer in Sekunden
     Dauer_h_ORS = Dauer_s_ORS / 3600                                                # Dauer in Stunden    
     Distanz_km = Distanz_m / 1000                                                   # Distanz in Kilometer
     Dauer_h_eigen = Distanz_km / avg_speed                                          # Dauer in Stunden
 
     ############################### Höhenmeter aus der Route extrahieren ###############################################
 
-    elevation_up = route_bike['features'][0]['properties']['ascent']                # Höhenmeter Anstieg
-    elevation_down = route_bike['features'][0]['properties']['descent']             # Höhenmeter Abstieg
+    elevation_up = route_bike['features'][st.session_state.selected_route_index]['properties']['ascent']                # Höhenmeter Anstieg
+    elevation_down = route_bike['features'][st.session_state.selected_route_index]['properties']['descent']             # Höhenmeter Abstieg
 
     ############################## Sportrelevante Daten berechnen #######################################################
 
@@ -226,20 +289,20 @@ if start_input and dest_input and speed_input:
     bounds = [[min(lats), min(lons)], [max(lats), max(lons)]]
 
     # Map auf die Bounds zoomen
-    map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
+    our_map.fit_bounds(bounds, padding=(80, 80))                        # Rand von 80 Pixeln hinzufügen (padding)
 
     #################################### Überschrift und Sidebar ########################################################
 
     Headline = fb.place_header(start_name, dest_name)   
 
-    map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
+    our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 
     ############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
-    MeasureControl().add_to(map)                                  # Hinzufügen eines Messwerkzeugs  
+    MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
 
     if calc_route:
-        map.save("meine_karte.html")
+        our_map.save("meine_karte.html")
         
         # HTML laden und einbetten
         with open("meine_karte.html", "r", encoding="utf-8") as f:
