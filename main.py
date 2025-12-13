@@ -26,7 +26,7 @@ if 'zs' not in st.session_state:
     st.session_state.zs = ""
 
 if 'dest' not in st.session_state:
-    st.session_state.dest = "Mindelheim"
+    st.session_state.dest = "Augsburg"
 
 col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")            # Reihe 1
 
