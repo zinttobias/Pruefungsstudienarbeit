@@ -2,7 +2,10 @@
 --------------------------------------------------------------------------------------------
 Pruefungsstudienarbeit Programmieren 3 WS 25/26
 Gruppenmitglieder: Alexander Hollenrieder, Thilo Fuhrmann, Dominic Schüll, Tobias Zint
-Erstellungsdatum: 10.11.2025
+Erstellungsdatum der Projektdatei: 10.11.2025
+Abgabedatum: 17.12.2025 (Tag der Abschlusspräsentation)
+main.py
+Hauptprogramm zur Berechnung und Darstellung der Fahrradroute mit Streamlit und Folium
 --------------------------------------------------------------------------------------------
 """
 

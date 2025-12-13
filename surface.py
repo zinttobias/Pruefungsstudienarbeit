@@ -1,7 +1,10 @@
-# ============================================
-# surface.py
-# Mapping für Untergund und Legende
-# ============================================
+"""
+--------------------------------------------------------------------------------------------
+Pruefungsstudienarbeit Programmieren 3 WS 25/26
+surface.py
+Mapping für Untergrund und Gelände
+--------------------------------------------------------------------------------------------
+"""
 
 # Mapping der ORS-Surface-Codes
 SURFACE_TYPES = {

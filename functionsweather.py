@@ -1,3 +1,13 @@
+"""
+--------------------------------------------------------------------------------------------
+Pruefungsstudienarbeit Programmieren 3 WS 25/26
+functionsweather.py
+Funktionen die das Wetter betreffen werden hier eingetragen
+--------------------------------------------------------------------------------------------
+"""
+
+# Import notwendiger Bibliotheken
+
 import folium
 import requests
 
@@ -89,7 +99,7 @@ def get_Weather_Prediction_for_duration_hours(lat, lon, start_time_hours, durati
         "&hourly=temperature_2m,weathercode,windspeed_10m,winddirection_10m"
         "&current_weather=true"
         "&timezone=Europe%2FBerlin"
-        "&forecast_days=7"   # Open-Meteo liefert gerne viel -> wir schneiden später hart zu
+        "&forecast_days=7"  
     )
 
     try:
@@ -97,7 +107,7 @@ def get_Weather_Prediction_for_duration_hours(lat, lon, start_time_hours, durati
         r.raise_for_status()
         data = r.json()
 
-        hourly_times = data["hourly"]["time"]
+        hourly_times = data["hourly"]["time"]                   # Stündliche Abfrage der Wettervorhersagedaten
         temperature_all = data["hourly"]["temperature_2m"]
         weather_code_all = data["hourly"]["weathercode"]
         wind_speed_all = data["hourly"]["windspeed_10m"]
@@ -114,24 +124,24 @@ def get_Weather_Prediction_for_duration_hours(lat, lon, start_time_hours, durati
         start_index = now_index + int(start_time_hours)
         end_index = start_index + int(duration_hours)
 
-        temperature_pred = temperature_all[start_index:end_index]
+        temperature_pred = temperature_all[start_index:end_index]       # Vorhersagedaten für die gewünschte Dauer abspeichern
         weather_code_pred = weather_code_all[start_index:end_index]
         wind_speed_pred = wind_speed_all[start_index:end_index]
         wind_direction_pred = wind_dir_all[start_index:end_index]
 
         weather_description_pred = [
-            turn_code_in_text(WEATHER_DESCRIPTIONS, int(code), default="Keine Daten vorhanden")
+            turn_code_in_text(WEATHER_DESCRIPTIONS, int(code), default = "Keine Daten vorhanden")
             for code in weather_code_pred
         ]
 
-        return {
+        return {                                                        # Rückgabe der Vorhersagedaten als Dictionary
             "temp_pred": [float(temp) for temp in temperature_pred],
             "whather_descr_pred": weather_description_pred,
             "wind_speed_pred": [float(speed) for speed in wind_speed_pred],
             "wind_dir_pred": [float(direction) for direction in wind_direction_pred]
         }
 
-    except Exception as e:
+    except Exception as e:                                              # Fehlerbehandlung
         print("Wettervorhersage-Fehler:", e)
         return {
             "temp_pred": None,
@@ -159,10 +169,10 @@ def is_weather_goog_enough_for_biking(start_weather_prediction_directory,
     weather_descr_prediction_z = ziel_weather_prediction_directory["whather_descr_pred"]
     wind_speed_prediction_z = ziel_weather_prediction_directory["wind_speed_pred"]
 
-    MIN_TEMP = 5.0
-    MAX_WIND = 20.0
+    MIN_TEMP = 5.0          # Minimum Temperatur zum Radfahren
+    MAX_WIND = 20.0         # Maximale Windgeschwindigkeit zum Radfahren
 
-    BAD_WEATHER_CRITERIUMS = [
+    BAD_WEATHER_CRITERIUMS = [                                          # Begriffe die schlechtes Wetter kennzeichnen
         "Gewitter", "Hagel", "Starker Regen", "Heftiger Regenschauer",
         "Starker Schneefall", "Schneeschauer", "Gefrierender Regen",
         "Eisregen", "Glatteis", "Sturm", "Orkan", "Nebel", "Reifnebel",
@@ -171,9 +181,12 @@ def is_weather_goog_enough_for_biking(start_weather_prediction_directory,
 
     gruende = []
 
-    # Start prüfen (safe länge)
-    n_s = min(len(temp_prediction_s), len(weather_descr_prediction_s), len(wind_speed_prediction_s))
-    for i in range(n_s):
+    # Wettervorhersage am Start prüfen
+
+    # Kleinste Länge der Vorhersagedaten ermitteln, um Indexfehler zu vermeiden
+    min_length_s = min(len(temp_prediction_s), len(weather_descr_prediction_s), len(wind_speed_prediction_s))
+
+    for i in range(min_length_s):
 
         if temp_prediction_s[i] < MIN_TEMP:
             gruende.append(f"Start: Stunde {i} zu kalt ({temp_prediction_s[i]}°C)")
@@ -186,10 +199,14 @@ def is_weather_goog_enough_for_biking(start_weather_prediction_directory,
                 gruende.append(f"Start: Stunde {i} {weather_descr_prediction_s[i]}")
                 break
 
-    # Zwischenstopp prüfen
+    # Wettervorhersage am Zwischenstopp prüfen
+
     if zs_weather_prediction_directory is not None:
-        n_zs = min(len(temp_prediction_zs), len(weather_descr_prediction_zs), len(wind_speed_prediction_zs))
-        for i in range(n_zs):
+
+        # Kleinste Länge der Vorhersagedaten ermitteln, um Indexfehler zu vermeiden
+        min_length_zs = min(len(temp_prediction_zs), len(weather_descr_prediction_zs), len(wind_speed_prediction_zs))
+
+        for i in range(min_length_zs):
 
             if temp_prediction_zs[i] < MIN_TEMP:
                 gruende.append(f"Zwischenstopp: Stunde {i} zu kalt ({temp_prediction_zs[i]}°C)")
@@ -202,9 +219,12 @@ def is_weather_goog_enough_for_biking(start_weather_prediction_directory,
                     gruende.append(f"Zwischenstopp: Stunde {i} {weather_descr_prediction_zs[i]}")
                     break
 
-    # Ziel prüfen
-    n_z = min(len(temp_prediction_z), len(weather_descr_prediction_z), len(wind_speed_prediction_z))
-    for i in range(n_z):
+    # Wettervorhersage am Ziel prüfen
+
+    # Kleinste Länge der Vorhersagedaten ermitteln, um Indexfehler zu vermeiden
+    min_length_z = min(len(temp_prediction_z), len(weather_descr_prediction_z), len(wind_speed_prediction_z))
+
+    for i in range(min_length_z):
 
         if temp_prediction_z[i] < MIN_TEMP:
             gruende.append(f"Ziel: Stunde {i} zu kalt ({temp_prediction_z[i]}°C)")
@@ -226,18 +246,34 @@ def is_weather_goog_enough_for_biking(start_weather_prediction_directory,
 
 def weather_circle_style(temp):
 
-    radius_circle = 600
+    radius_circle = 600         # Radius des Kreises auf der Folium Karte
+    
+    if temp is None or temp == "Keine Daten":           # Kein Wert -> grau
+        return ("#9E9E9E", radius_circle)  
 
-    if temp is None or temp == "Keine Daten":
-        return ("gray", radius_circle)
-    if temp < 5:
-        return ("blue", radius_circle)
-    elif temp < 15:
-        return ("green", radius_circle)
-    elif temp < 25:
-        return ("orange", radius_circle)
-    else:
-        return ("red", radius_circle)
+    if -50 <= temp < 0:                                 # sehr kalt -> dunkelblau
+        return ("#0D47A1", radius_circle)  
+    
+    elif 0 <= temp < 5:                                 # kalt -> blau
+        return ("#1976D2", radius_circle)  
+    
+    elif 5 <= temp < 10:                                # kühl -> hellblau
+        return ("#64B5F6", radius_circle)  
+    
+    elif 10 <= temp < 15:                               # kühl -> grün
+        return ("#4CAF50", radius_circle)  
+    
+    elif 15 <= temp < 20:                               # angenehm -> gelb
+        return ("#FFEB3B", radius_circle)  
+
+    elif 20 <= temp < 25:                               # warm -> orange
+        return ("#FF9800", radius_circle)  
+    
+    elif 25 <= temp < 30:                               # heiß -> rot
+        return ("#F44336", radius_circle)  
+    
+    else:                                               # sehr heiß -> dunkelrot    
+        return ("#B71C1C", radius_circle)  
 
 ###############################################################################################################
 

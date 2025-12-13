@@ -45,3 +45,8 @@ eingebunden, welche auch eine Installation in Anaconda
 "conda init powershell"
 - Jetzt kann man Anaconda über das Terminal in VS Code verwenden 
 -> "streamlit run main.py" Befehl funktioniert in VS Code
+
+## Streamlit Community Cloud
+
+-Das Projekt ist über folgenden Link erreichbar: https://pruefungsstudienarbeit-d8vq93hhknpasmnijvtvth.streamlit.app/
+-Damit es weiterhin läuft müssen alle hinzugefügten Packages in die Textdatei requirements eingetragen werden

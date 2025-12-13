@@ -1,3 +1,11 @@
+"""
+--------------------------------------------------------------------------------------------
+Pruefungsstudienarbeit Programmieren 3 WS 25/26
+functionsbasic.py
+Funktionen die das allgemeine Projekt betreffen werden hier eingetragen
+--------------------------------------------------------------------------------------------
+"""
+
 # Import notwendiger Bibliotheken bzw. Packages
 
 import numpy
