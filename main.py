@@ -14,7 +14,7 @@ from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes
 ##################################### Streamlit ###########################################################
 
 st.set_page_config(layout="wide")
-st.title("Fahrradroute 🚲 🗺️")                                                # Titel
+st.title("Fahrradroute 🚲 🗺️")                              # Titel
 
 if 'start' not in st.session_state:
     st.session_state.start = "München"
@@ -25,7 +25,7 @@ if 'zs' not in st.session_state:
 if 'dest' not in st.session_state:
     st.session_state.dest = "Augsburg"
 
-col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")                   # Reihe 1
+col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")            # Reihe 1
 
 with col1:  
     start_input = st.text_input("Startpunkt 📍", key = "start")
@@ -195,14 +195,6 @@ if start_input and dest_input and speed_input:
     #Map-Anzeigebereich von our_map 
     our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
 
-
-    ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
-
-    duration_hours = 4                              # Fahrtzeit in Stunden !!!!!!!!!!!!noch ändern!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-
-    weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, dest_coords, zs_coords, 
-                                                   int(start_time_hours), duration_hours)
-
     ############################### Platzieren der Folium Marker auf der Karte ##########################################
     place_marker = fb.MarkerPlacingFolium(our_map)
 
@@ -279,6 +271,14 @@ if start_input and dest_input and speed_input:
                                     Dauer_h_eigen,
                                     sport_data_yes_no
                                     )
+    
+    ############################ Wetterinformationen grafisch auf der Karte einfügen ####################################
+
+    duration_eigen_hours = int(Dauer_h_eigen + 1)             # Dauer auf die nächste volle Stunde aufrunden
+
+    weather_sidebar = fw.include_weather_to_folium(our_map, start_coords, dest_coords, zs_coords, 
+                                                   int(start_time_hours), duration_eigen_hours)
+
 
     ####################################### Kartenanpassungen ##########################################################
 
@@ -298,9 +298,36 @@ if start_input and dest_input and speed_input:
 
     our_map.get_root().html.add_child(folium.Element(Headline))       # Überschrift HTML an Karte anhängen
 
+    #################################### Erstellen des Höhenmeterdiagramms #############################################
+    
+    height_meters = []
+    distance_meters = []
+
+    anzahl_punkte = len(coords_route)                           # Berechnung der Anzahl der Routenpunkte
+    distanz_pro_punkt = Distanz_m / anzahl_punkte               # Aufteilung der Distanz auf die Routenpunkte
+
+    for i in range(anzahl_punkte):
+        distance_meters.append(i * distanz_pro_punkt)           # Jedem Routenpunkt eine Distanz zuweisen
+
+    for punkt in coords_route:                                  # Jedem Routenpunkt eine Höhe zuweisen
+        height_at_point = punkt[2]                              # Dritter Wert entspricht der Höhe
+        height_meters.append(height_at_point)
+
+    high_meters_plot, axis = plt.subplots()                     # Erstellen des Diagramms 
+    axis.plot( distance_meters, height_meters,
+               color = "darkgreen", linewidth = 2 )
+    
+    axis.set_xlabel("Streckenlänge (m)")                        # Beschriftung der Achsen und Titel
+    axis.set_ylabel("Höhe (m)")
+    axis.set_title("Höhenprofil der Fahrradroute")
+
+    axis.grid(True)                                             # Raster anzeigen lassen
+    axis.set_facecolor("#e6e3e3")                             # Diagramm Hintergrund
+    high_meters_plot.patch.set_facecolor("white")               # Außenbereich
+
     ############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
-    MeasureControl().add_to(our_map)                                  # Hinzufügen eines Messwerkzeugs  
+    MeasureControl().add_to(our_map)                       # Hinzufügen eines Messwerkzeugs  
 
     if calc_route:
         our_map.save("meine_karte.html")
@@ -343,9 +370,10 @@ if start_input and dest_input and speed_input:
 
             if weather_sidebar.get("fahrradfahren_empfohlen", None) is not None:
                 if weather_sidebar["fahrradfahren_empfohlen"]:
-                    st.success("✅ Fahrradfahren empfohlen")
+                    st.success("✅ Fahrradfahren empfohlen")        # success macht grünen Hintergrund
                 else:
-                    st.error("❌ Fahrradfahren nicht empfohlen")
+                    st.error("❌ Fahrradfahren nicht empfohlen")    # error macht roten Hintergrund
+                    st.write("Andere Abfahrtzeit wählen !")
                     gruende = weather_sidebar.get("gruende_gegen_fahrradfahren", [])
                     if gruende is not None:
                         for g in gruende:
@@ -360,5 +388,9 @@ if start_input and dest_input and speed_input:
                     unsafe_allow_html=True
                 )
 
-        st.components.v1.html(html_data, height=900, width=1800)
+########################################### Hinzufügen der Grafiken ########################################################
+        
+        st.components.v1.html(html_data, height=900, width=1800)    # Hinzufügen der Karte zu Streamlit
+
+        st.pyplot(high_meters_plot)                                 # Hinzufügen des Höhenmeterdiagramms zu Streamlit
 

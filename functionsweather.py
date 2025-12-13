@@ -159,8 +159,8 @@ def is_weather_goog_enough_for_biking(start_weather_prediction_directory,
     weather_descr_prediction_z = ziel_weather_prediction_directory["whather_descr_pred"]
     wind_speed_prediction_z = ziel_weather_prediction_directory["wind_speed_pred"]
 
-    MIN_TEMP = 10.0
-    MAX_WIND = 35.0
+    MIN_TEMP = 5.0
+    MAX_WIND = 20.0
 
     BAD_WEATHER_CRITERIUMS = [
         "Gewitter", "Hagel", "Starker Regen", "Heftiger Regenschauer",
