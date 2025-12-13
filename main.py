@@ -26,7 +26,7 @@ if 'zs' not in st.session_state:
     st.session_state.zs = ""
 
 if 'dest' not in st.session_state:
-    st.session_state.dest = "Augsburg"
+    st.session_state.dest = "Mindelheim"
 
 col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")            # Reihe 1
 
@@ -212,7 +212,7 @@ if start_input and dest_input and speed_input:
     ############################################### ORS-Route hinzufügen ###############################################
 
 
-# Set erstellen, um nur Oberflächen zu speichern, die auf der Route vorkommen
+    # Set erstellen, um nur Oberflächen zu speichern, die auf der Route vorkommen
     used_surfaces = set()                                               #Zur Speicherung der in der Route vorkommenden Untergründe
 
     # Alternativerouten zeichnen
