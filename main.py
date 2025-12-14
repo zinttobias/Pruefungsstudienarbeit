@@ -375,8 +375,7 @@ if start_input and dest_input and speed_input:
                 if weather_sidebar["fahrradfahren_empfohlen"]:
                     st.success("✅ Fahrradfahren empfohlen")        # success macht grünen Hintergrund
                 else:
-                    st.error("❌ Fahrradfahren nicht empfohlen")    # error macht roten Hintergrund
-                    st.write("Andere Abfahrtzeit wählen !")
+                    st.error("❌ Fahrradfahren nicht empfohlen. Wählen einer anderen Abfahrtszeit!")    # error macht roten Hintergrund
                     gruende = weather_sidebar.get("gruende_gegen_fahrradfahren", [])
                     if gruende is not None:
                         for g in gruende:
