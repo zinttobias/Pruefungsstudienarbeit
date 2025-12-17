@@ -44,6 +44,32 @@ WEATHER_DESCRIPTIONS = {                        # Wettercode weist einer Zahl ei
     99: "Gewitter mit starkem Hagel"
 }
 
+####################################### Wettericons aus Font Awesome #############################################
+
+WEATHER_ICONS = {
+    0:  ("sun", "orange"),
+    1:  ("sun", "orange"),
+    2:  ("cloud-sun", "lightgray"),
+    3:  ("cloud", "gray"),
+    45: ("smog", "lightgray"),
+    48: ("smog", "lightgray"),
+    51: ("cloud-rain", "blue"),
+    53: ("cloud-rain", "blue"),
+    55: ("cloud-showers-heavy", "blue"),
+    61: ("cloud-rain", "blue"),
+    63: ("cloud-showers-heavy", "blue"),
+    65: ("cloud-showers-heavy", "darkblue"),
+    71: ("snowflake", "white"),
+    73: ("snowflake", "white"),
+    75: ("snowflake", "lightblue"),
+    80: ("cloud-showers-heavy", "blue"),
+    81: ("cloud-showers-heavy", "darkblue"),
+    82: ("cloud-showers-heavy", "red"),
+    95: ("bolt", "purple"),
+    96: ("bolt", "purple"),
+    99: ("bolt", "red"),
+}
+
 ####################################### Wettercode in Text umwandeln #############################################
 
 def turn_code_in_text(dictionary, weather_code, default=None):
@@ -80,6 +106,7 @@ def getWeather(lat, lon):       # Wetterdaten abrufen für lat lon
         return {
             "temperatur": float(temp),
             "zeit": time,
+            "weather_code": weather_code,
             "Wetterbeschreibung": weather_description,
             "Windgeschwindigkeit_kmh": float(windspeed),
             "Windrichtung_grad": float(winddirection)
@@ -365,16 +392,19 @@ def include_weather_to_folium(map_obj, coords_start, coords_ziel, coords_zs, sta
     return {
         "start_temp": start_weather["temperatur"],
         "start_weather_text": start_weather["Wetterbeschreibung"],
+        "start_weather_code": start_weather["weather_code"],
         "start_wind_speed": start_weather["Windgeschwindigkeit_kmh"],
         "start_wind_direction": start_weather["Windrichtung_grad"],
 
         "ziel_temp": ziel_weather["temperatur"],
         "ziel_weather_text": ziel_weather["Wetterbeschreibung"],
+        "ziel_weather_code": ziel_weather["weather_code"],
         "ziel_wind_speed": ziel_weather["Windgeschwindigkeit_kmh"],
         "ziel_wind_direction": ziel_weather["Windrichtung_grad"],
 
         "zs_temp": zs_coords_weather["temperatur"] if zs_coords_weather is not None else None,
         "zs_weather_text": zs_coords_weather["Wetterbeschreibung"] if zs_coords_weather is not None else None,
+        "zs_weather_code": zs_coords_weather["weather_code"] if zs_coords_weather else None,
         "zs_wind_speed": zs_coords_weather["Windgeschwindigkeit_kmh"] if zs_coords_weather is not None else None,
         "zs_wind_direction": zs_coords_weather["Windrichtung_grad"] if zs_coords_weather is not None else None,
 

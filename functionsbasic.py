@@ -14,6 +14,7 @@ import folium
 import openrouteservice
 import math
 from folium.plugins import MiniMap, MeasureControl
+from functionsweather import WEATHER_ICONS
 import streamlit as st
 import streamlit.components.v1 as components
 import subprocess
@@ -42,30 +43,55 @@ def get_coords(city_name):
 class MarkerPlacingFolium:
     def __init__(self, map_obj):
         self.our_map = map_obj
+        self.weather_data = {}
 
     def start(self, coords, popup):
+        code = self.weather_data.get("start_weather_code")
+        weather_icon = self._icon_from_weather_code(code)
+
         folium.Marker(
             location=[coords[1], coords[0]],
             tooltip="Start",
             popup=popup,
-            icon=folium.Icon(color="green", icon="play")
+            icon=weather_icon
         ).add_to(self.our_map)
 
     def zwischenstopp(self, coords, popup):
+        code = self.weather_data.get("zs_weather_code")
+        weather_icon = self._icon_from_weather_code(code)
+
         folium.Marker(
             location=[coords[1], coords[0]],
             tooltip="Zwischenstopp",
             popup=popup,
-            icon=folium.Icon(color="orange", icon="pause")
+            icon=weather_icon
         ).add_to(self.our_map)
 
     def ziel(self, coords, popup):
+        code = self.weather_data.get("ziel_weather_code")
+        weather_icon = self._icon_from_weather_code(code)
+
         folium.Marker(
             location=[coords[1], coords[0]],
             tooltip="Ziel",
             popup=popup,
-            icon=folium.Icon(color="red", icon="flag")
+            icon=weather_icon
         ).add_to(self.our_map)
+
+    def set_weather_data(self, weather_dict):
+        self.weather_data = weather_dict
+
+    def _icon_from_weather_code(self, code):
+        if code is None:
+            return folium.Icon(icon="map-marker", prefix="fa", color="black")
+
+        icon_name, color = WEATHER_ICONS.get(
+            code, ("question", "black")
+        )
+
+        return folium.Icon(icon=icon_name, prefix="fa", color=color)
+
+
 
 ################################# Sportrelevante Daten Leistung, Kalorienverbrauch ###########################################
 

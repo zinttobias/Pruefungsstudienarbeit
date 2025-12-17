@@ -199,7 +199,18 @@ if start_input and dest_input and speed_input:
     our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
 
     ############################### Platzieren der Folium Marker auf der Karte ##########################################
+
+    weather_info = fw.include_weather_to_folium(
+    our_map,
+    start_coords,
+    dest_coords,
+    zs_coords,
+    start_time_hours,
+    1
+    )
+    
     place_marker = fb.MarkerPlacingFolium(our_map)
+    place_marker.set_weather_data(weather_info)
 
     place_marker.start(start_coords, start_name)
 
