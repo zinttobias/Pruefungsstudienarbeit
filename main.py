@@ -12,6 +12,7 @@ Hauptprogramm zur Berechnung und Darstellung der Fahrradroute mit Streamlit und 
 import functionsbasic as fb
 from functionsbasic import *                        # Import von allem mit *
 import functionsweather as fw
+from functionsweather import *
 from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes und Farben
 
 ##################################### Streamlit ###########################################################
