@@ -197,7 +197,20 @@ if start_input and dest_input and speed_input:
     destination = dest_coords                                                         #Zielkoordinaten       
 
     #Map-Anzeigebereich von our_map 
-    our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12)     #[latitude, longitude]
+    our_map = folium.Map(location=(start_coords[1], start_coords[0]), zoom_start=12, tiles=None)     #[latitude, longitude]
+
+    # Satellitenkarte
+    folium.TileLayer(
+        tiles='https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+        attr='Esri',
+        name='Satellit',
+        overlay=False,
+        control=True
+    ).add_to(our_map)
+
+    # Normalkarte
+    folium.TileLayer('OpenStreetMap', name='Normal').add_to(our_map)
+
 
     ############################### Platzieren der Folium Marker auf der Karte ##########################################
 
@@ -343,6 +356,8 @@ if start_input and dest_input and speed_input:
     ############################### Hinzufügen von Features und Abspeichern der Karte ##################################
 
     MeasureControl().add_to(our_map)                       # Hinzufügen eines Messwerkzeugs  
+
+    folium.LayerControl().add_to(our_map)                  # Umschalten der Kartenarten hinzufügen
 
     if calc_route:
         our_map.save("meine_karte.html")
