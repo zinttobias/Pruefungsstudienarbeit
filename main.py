@@ -18,7 +18,16 @@ from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes
 ##################################### Streamlit ###########################################################
 
 st.set_page_config(layout="wide")
-st.title("Fahrradroute 🚲 🗺️")                              # Titel
+st.title("Fahrradroute 🚲 🗺️")                             # Titel
+
+
+for key in [                                                # Autocomplete Session State vorbereiten
+    "start_query", "start_name",
+    "dest_query", "dest_name",
+    "zs_query", "zs_name"
+]:
+    if key not in st.session_state:
+        st.session_state[key] = ""
 
 if 'start' not in st.session_state:
     st.session_state.start = "München"
@@ -31,29 +40,82 @@ if 'dest' not in st.session_state:
 
 col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")            # Reihe 1
 
-with col1:  
-    start_input = st.text_input("Startpunkt 📍", key = "start")
-    if start_input:
-        start_name = start_input
+with col1:
+    st.text_input(
+        "Startpunkt 📍",
+        key="start_query",
+        placeholder="Start eingeben, Enter für Vorschläge"
+    )
+
+    start_suggestions = []
+    if len(st.session_state.start_query) >= 3:
+        start_suggestions = fb.geocode_suggestions(
+            st.session_state.start_query
+        )
+
+    if start_suggestions:
+        selected_start = st.selectbox(
+            "Vorschläge",
+            options=start_suggestions,
+            format_func=lambda x: x[0],
+            key="start_select"
+        )
+
+        st.session_state.start_name = selected_start[0]
 
 with col2:
     st.button("📍", key = "button_start", help = "Standort als Startpunkt festlegen", on_click=fb.update_ipinfo, args=("Startpunkt",))
     
-
 with col3:
-    zs_input = st.text_input("Zwischenpunkt 🔸", key = "zs")
-    if zs_input:
-        zs_name = zs_input
+    st.text_input(
+        "Zwischenpunkt 🔸 (optional)",
+        key="zs_query",
+        placeholder="Zwischenstopp eingeben, Enter für Vorschläge"
+    )
+
+    zs_suggestions = []
+    if len(st.session_state.zs_query) >= 3:
+        zs_suggestions = fb.geocode_suggestions(
+            st.session_state.zs_query
+        )
+
+    if zs_suggestions:
+        selected_zs = st.selectbox(
+            "Vorschläge (Zwischenstopp)",
+            options=zs_suggestions,
+            format_func=lambda x: x[0],
+            key="zs_select"
+        )
+
+        st.session_state.zs_name = selected_zs[0]
     else:
-        zs_name = None
+        st.session_state.zs_name = None
 
 with col4:
     location_zs = st.button("📍", key = "button_zs", help = "Standort als Zwischenpunkt festlegen", on_click=fb.update_ipinfo, args=("Zwischenpunkt",))
 
-with col5:  
-    dest_input = st.text_input("Zielpunkt 🏁", key = "dest")
-    if dest_input:
-        dest_name = dest_input
+with col5:
+    st.text_input(
+        "Zielpunkt 🏁",
+        key="dest_query",
+        placeholder="Ziel eingeben, Enter für Vorschläge"
+    )
+
+    dest_suggestions = []
+    if len(st.session_state.dest_query) >= 3:
+        dest_suggestions = fb.geocode_suggestions(
+            st.session_state.dest_query
+        )
+
+    if dest_suggestions:
+        selected_dest = st.selectbox(
+            "Vorschläge",
+            options=dest_suggestions,
+            format_func=lambda x: x[0],
+            key="dest_select"
+        )
+
+        st.session_state.dest_name = selected_dest[0]
 
 with col6:
     location_dest = st.button("📍", key = "button_dest", help = "Standort als Zielpunkt festlegen", on_click=fb.update_ipinfo, args=("Zielpunkt",))
@@ -109,10 +171,15 @@ st.markdown(                # Hintergrundbild für Streamlit
     unsafe_allow_html=True
 )
 
-if start_input and dest_input and speed_input: 
+if st.session_state.start_name and st.session_state.dest_name and speed_input:      #Route nur berechnen wenn Auswahl existiert
 
-    
     ##################################### Eingabe der Route und Verarbeitung ###############################################
+
+    start_name = st.session_state.start_name
+    dest_name = st.session_state.dest_name
+    zs_name = st.session_state.zs_name
+    has_zs = zs_name is not None
+
 
     start_coords = fb.get_coords(start_name)                    # Startkoordinaten für die Route abrufen
     dest_coords =  fb.get_coords(dest_name)                     # Zielkoordinaten für die Route abrufen
@@ -135,52 +202,58 @@ if start_input and dest_input and speed_input:
     if 'selected_route_index' not in st.session_state:
         st.session_state.selected_route_index = 0
         
-    if zs_name == None:
-        route_bike = client.directions(         #Route mit dem Fahrrad berechnen
-        coords,
-        elevation = True,
-        profile = bike_profile,
-        alternative_routes={
-                "target_count": 3,     # Versuche 3 Routen zu finden
-                "weight_factor": 1.4,  # Wie viel länger darf die Alternative sein? (1.4 = 40% länger erlaubt)
-                "share_factor": 0.7    # Wie viel darf sie sich mit der Hauptroute überschneiden?
+    # Default: erste Route
+    st.session_state.selected_route_index = 0
+
+    if not has_zs:
+        # KEIN Zwischenstopp → Alternativen erlaubt
+        route_bike = client.directions(             # Route mit dem Fahrrad berechnen
+            coords,
+            elevation=True,
+            profile=bike_profile,
+            alternative_routes={
+                "target_count": 3,                  # Versuche 3 Routen zu finden
+                "weight_factor": 1.4,               # Wie viel länger darf die Alternative sein? (1.4 = 40% länger erlaubt)
+                "share_factor": 0.7                 # Wie viel darf sie sich mit der Hauptroute überschneiden?
             },
-        format = 'geojson',
-        extra_info=["surface"]                  #Untergründe von ORS abrufen
+            format="geojson",
+            extra_info=["surface"]                  # Untergründe von ORS abrufen
         )
 
-        # Prüfen, ob Alternative Routen vorhanden sind
-        if route_bike and 'features' in route_bike:
-            route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
+        # Routen-Auswahl nur anzeigen, wenn wirklich Alternativen existieren
+        if route_bike and "features" in route_bike:
+            route_list = route_bike["features"]     # route_bike['features'] ist die Liste für die Routen
             route_count = len(route_list)
 
             if route_count > 1:
-                # Liste mit Namen für Buttons
                 route_name = []
-                
-                for i, route in enumerate(route_list):
-                    # Kurze Infos für die Auswahloptionen
-                    props = route['properties']['summary']
-                    km = round(props['distance'] / 1000, 1)
-                    minutes = round(props['duration'] / 60)
-                    
-                    label = f"Route {i+1} ({km} km, {minutes} Min.)"
-                    route_name.append(label)
 
+                for i, route in enumerate(route_list):
+                    props = route["properties"]["summary"]
+                    km = round(props["distance"] / 1000, 1)
+                    minutes = round(props["duration"] / 60)
+                    route_name.append(f"Route {i+1} ({km} km, {minutes} Min.)")
+                
                 # Auswahlfenster erstellen
-                route_select = st.radio("Wähle deine Route:", route_name, horizontal = True)
+                route_select = st.radio(
+                    "Wähle deine Route:",
+                    route_name,
+                    horizontal=True
+                )
                 st.session_state.selected_route_index = route_name.index(route_select)
 
-    #Bei Zwischenstopp sind keine Alternativrouten möglich
-    else: 
-        st.session_state.selected_route_index = 0
-        route_bike = client.directions(         #Route mit dem Fahrrad berechnen
-        coords,
-        elevation = True,
-        profile = bike_profile,
-        format = 'geojson',
-        extra_info=["surface"]                  #Untergründe von ORS abrufen
+    else:
+    # MIT Zwischenstopp → nur eine Route
+        route_bike = client.directions(             # Route mit dem Fahrrad berechnen
+            coords,
+            elevation=True,
+            profile=bike_profile,
+            format="geojson",
+            extra_info=["surface"]                  # Untergründe von ORS abrufen
         )
+
+    st.info("ℹ️ Alternativrouten sind bei Zwischenstopps technisch nicht verfügbar.")
+
 
     # Geometrie extrahieren und decodieren
     current_route = route_bike['features'][st.session_state.selected_route_index]['geometry']
@@ -241,7 +314,7 @@ if start_input and dest_input and speed_input:
     used_surfaces = set()                                               #Zur Speicherung der in der Route vorkommenden Untergründe
 
     # Alternativerouten zeichnen
-    if route_bike and 'features' in route_bike and zs_name == None:
+    if route_bike and 'features' in route_bike and not has_zs:
         route_list = route_bike['features']      #route_bike['features'] ist die Liste für die Routen
         route_count = len(route_list)
 
