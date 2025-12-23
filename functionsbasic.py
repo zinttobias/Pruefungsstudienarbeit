@@ -32,12 +32,43 @@ client = openrouteservice.Client(key="eyJvcmciOiI1YjNjZTM1OTc4NTExMTAwMDFjZjYyND
 
 ######################################  Allgemeine Funktionsdefinitionen ###########################################
 
-########################################## Funktion zum Wandeln eines Stadtnamens in Koordinaten #############################
+############################## Funktion zum Wandeln eines Stadtnamens in Koordinaten ###############################
          
 def get_coords(city_name):
     response = client.pelias_search(text=city_name, size=1)         # Anfrage Stadtname mit einem Ergebnis
     coords = response['features'][0]['geometry']['coordinates']     # Erstes Ergebnis von features, Übergabe der Koordinaten
     return coords                                                   # [longitude, latitude] in coords
+
+########################################## Funktion für Ortsvorschläge #############################################
+
+@st.cache_data(ttl=300)
+def geocode_suggestions(query, limit=5):
+    """
+    Holt Ortsvorschläge (Name + Koordinaten) von ORS Pelias
+    und cached sie für 5 Minuten.
+    """
+    if not query or len(query) < 3:
+        return []
+
+    try:
+        response = client.pelias_search(
+            text=query,
+            size=limit
+        )
+
+        suggestions = []
+        for feature in response.get("features", []):
+            label = feature["properties"].get("label")
+            coords = feature["geometry"]["coordinates"]     # [lon, lat]
+
+            if label and coords:
+                suggestions.append((label, coords))
+
+        return suggestions
+
+    except Exception as e:
+        print("Geocoding Fehler:", e)                       # Zur Fehleranzeige im Terminal
+        return []
 
 ######################################## Klasse zum Platzieren der Folium Marker auf der Karte ###############################
 
