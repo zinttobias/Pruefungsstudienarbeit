@@ -18,7 +18,16 @@ from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes
 ##################################### Streamlit ###########################################################
 
 st.set_page_config(layout="wide")
-st.title("Fahrradroute 🚲 🗺️")                              # Titel
+st.title("Fahrradroute 🚲 🗺️")                             # Titel
+
+#Autocomplete Session State
+for key in [                                                # Autocomplete Session State vorbereiten
+    "start_query", "start_name",
+    "dest_query", "dest_name"
+]:
+    if key not in st.session_state:
+        st.session_state[key] = ""
+
 
 if 'start' not in st.session_state:
     st.session_state.start = "München"
@@ -155,10 +164,16 @@ st.markdown(                # Hintergrundbild für Streamlit
     unsafe_allow_html=True
 )
 
-if start_input and dest_input and speed_input: 
+if st.session_state.start_name and st.session_state.dest_name and speed_input:      #Route nur berechnen wenn Auswahl existiert
+
+#if start_input and dest_input and speed_input: 
 
     
     ##################################### Eingabe der Route und Verarbeitung ###############################################
+
+    start_name = st.session_state.start_name
+    dest_name = st.session_state.dest_name
+
 
     start_coords = fb.get_coords(start_name)                    # Startkoordinaten für die Route abrufen
     dest_coords =  fb.get_coords(dest_name)                     # Zielkoordinaten für die Route abrufen
