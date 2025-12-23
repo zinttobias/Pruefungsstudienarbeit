@@ -31,10 +31,33 @@ if 'dest' not in st.session_state:
 
 col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")            # Reihe 1
 
-with col1:  
-    start_input = st.text_input("Startpunkt 📍", key = "start")
-    if start_input:
-        start_name = start_input
+#with col1:  
+#    start_input = st.text_input("Startpunkt 📍", key = "start")
+#    if start_input:
+#        start_name = start_input
+
+with col1:
+    st.text_input(
+        "Startpunkt 📍",
+        key="start_query",
+        placeholder="Stadt eingeben (z.B. Berlin)"
+    )
+
+    start_suggestions = []
+    if len(st.session_state.start_query) >= 3:
+        start_suggestions = fb.geocode_suggestions(
+            st.session_state.start_query
+        )
+
+    if start_suggestions:
+        selected_start = st.selectbox(
+            "Vorschläge",
+            options=start_suggestions,
+            format_func=lambda x: x[0],
+            key="start_select"
+        )
+
+        st.session_state.start_name = selected_start[0]
 
 with col2:
     st.button("📍", key = "button_start", help = "Standort als Startpunkt festlegen", on_click=fb.update_ipinfo, args=("Startpunkt",))
@@ -50,10 +73,33 @@ with col3:
 with col4:
     location_zs = st.button("📍", key = "button_zs", help = "Standort als Zwischenpunkt festlegen", on_click=fb.update_ipinfo, args=("Zwischenpunkt",))
 
-with col5:  
-    dest_input = st.text_input("Zielpunkt 🏁", key = "dest")
-    if dest_input:
-        dest_name = dest_input
+#with col5:  
+#    dest_input = st.text_input("Zielpunkt 🏁", key = "dest")
+#    if dest_input:
+#        dest_name = dest_input
+
+with col5:
+    st.text_input(
+        "Zielpunkt 🏁",
+        key="dest_query",
+        placeholder="Stadt eingeben (z.B. München)"
+    )
+
+    dest_suggestions = []
+    if len(st.session_state.dest_query) >= 3:
+        dest_suggestions = fb.geocode_suggestions(
+            st.session_state.dest_query
+        )
+
+    if dest_suggestions:
+        selected_dest = st.selectbox(
+            "Vorschläge",
+            options=dest_suggestions,
+            format_func=lambda x: x[0],
+            key="dest_select"
+        )
+
+        st.session_state.dest_name = selected_dest[0]
 
 with col6:
     location_dest = st.button("📍", key = "button_dest", help = "Standort als Zielpunkt festlegen", on_click=fb.update_ipinfo, args=("Zielpunkt",))
