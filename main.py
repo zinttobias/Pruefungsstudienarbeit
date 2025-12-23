@@ -20,14 +20,14 @@ from surface import SURFACE_TYPES, SURFACE_COLORS   # Import der Untergrundcodes
 st.set_page_config(layout="wide")
 st.title("Fahrradroute 🚲 🗺️")                             # Titel
 
-#Autocomplete Session State
+
 for key in [                                                # Autocomplete Session State vorbereiten
     "start_query", "start_name",
-    "dest_query", "dest_name"
+    "dest_query", "dest_name",
+    "zs_query", "zs_name"
 ]:
     if key not in st.session_state:
         st.session_state[key] = ""
-
 
 if 'start' not in st.session_state:
     st.session_state.start = "München"
@@ -40,16 +40,11 @@ if 'dest' not in st.session_state:
 
 col1, col2, col3, col4, col5, col6 = st.columns([3, 1, 3, 1, 3, 1], vertical_alignment="bottom")            # Reihe 1
 
-#with col1:  
-#    start_input = st.text_input("Startpunkt 📍", key = "start")
-#    if start_input:
-#        start_name = start_input
-
 with col1:
     st.text_input(
         "Startpunkt 📍",
         key="start_query",
-        placeholder="Stadt eingeben (z.B. Berlin)"
+        placeholder="Start eingeben, Enter für Vorschläge"
     )
 
     start_suggestions = []
@@ -71,27 +66,46 @@ with col1:
 with col2:
     st.button("📍", key = "button_start", help = "Standort als Startpunkt festlegen", on_click=fb.update_ipinfo, args=("Startpunkt",))
     
+#with col3:
+#    zs_input = st.text_input("Zwischenpunkt 🔸", key = "zs")
+#    if zs_input:
+#        zs_name = zs_input
+#    else:
+#        zs_name = None
 
 with col3:
-    zs_input = st.text_input("Zwischenpunkt 🔸", key = "zs")
-    if zs_input:
-        zs_name = zs_input
+    st.text_input(
+        "Zwischenpunkt 🔸 (optional)",
+        key="zs_query",
+        placeholder="optional"
+    )
+
+    zs_suggestions = []
+    if len(st.session_state.zs_query) >= 3:
+        zs_suggestions = fb.geocode_suggestions(
+            st.session_state.zs_query
+        )
+
+    if zs_suggestions:
+        selected_zs = st.selectbox(
+            "Vorschläge (Zwischenstopp)",
+            options=zs_suggestions,
+            format_func=lambda x: x[0],
+            key="zs_select"
+        )
+
+        st.session_state.zs_name = selected_zs[0]
     else:
-        zs_name = None
+        st.session_state.zs_name = None
 
 with col4:
     location_zs = st.button("📍", key = "button_zs", help = "Standort als Zwischenpunkt festlegen", on_click=fb.update_ipinfo, args=("Zwischenpunkt",))
-
-#with col5:  
-#    dest_input = st.text_input("Zielpunkt 🏁", key = "dest")
-#    if dest_input:
-#        dest_name = dest_input
 
 with col5:
     st.text_input(
         "Zielpunkt 🏁",
         key="dest_query",
-        placeholder="Stadt eingeben (z.B. München)"
+        placeholder="Ziel eingeben, Enter für Vorschläge"
     )
 
     dest_suggestions = []
@@ -166,14 +180,11 @@ st.markdown(                # Hintergrundbild für Streamlit
 
 if st.session_state.start_name and st.session_state.dest_name and speed_input:      #Route nur berechnen wenn Auswahl existiert
 
-#if start_input and dest_input and speed_input: 
-
-    
     ##################################### Eingabe der Route und Verarbeitung ###############################################
 
     start_name = st.session_state.start_name
     dest_name = st.session_state.dest_name
-
+    zs_name    = st.session_state.zs_name
 
     start_coords = fb.get_coords(start_name)                    # Startkoordinaten für die Route abrufen
     dest_coords =  fb.get_coords(dest_name)                     # Zielkoordinaten für die Route abrufen

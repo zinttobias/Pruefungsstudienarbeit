@@ -42,7 +42,7 @@ def get_coords(city_name):
 ########################################## Funktion für Ortsvorschläge #############################################
 
 @st.cache_data(ttl=300)
-def geocode_suggestions(query, limit=5):
+def geocode_suggestions(query, limit=7):
     """
     Holt Ortsvorschläge (Name + Koordinaten) von ORS Pelias
     und cached sie für 5 Minuten.
